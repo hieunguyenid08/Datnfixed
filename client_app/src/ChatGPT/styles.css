@@ -1,0 +1,29 @@
+/* Add these styles to your existing CSS file or create a new one */
+
+.chat-container {
+    transition: height 0.3s ease; /* Adjust the duration and timing function as needed */
+    overflow: hidden;
+  }
+  
+  .collapsed {
+    /* height: 50px; Set the collapsed height */
+  position: 'relative';
+  height: '800px';
+  width: '700px';
+  }
+  .hi{
+    height: 10;
+  }
+  
+  .collapse-icon {
+    position: absolute;
+    top: 10px; /* Adjust the top position as needed */
+    right: 10px; /* Adjust the right position as needed */
+    opacity: 0; /* Initially hidden */
+    transition: opacity 0.3s ease; /* Adjust the duration and timing function as needed */
+  }
+  
+  .visible {
+    opacity: 1; /* Make the icon visible when collapsed */
+  }
+  

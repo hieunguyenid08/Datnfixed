@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        img {
+            max-width: 50px;
+            max-height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Order Invoice</h2>
+    <p>Thank you for your order! Below is the invoice for your recent purchase:</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Image</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Product 1 -->
+            
+            <tr>
+                <td>Product Name 1</td>
+                <td><img src="product1.jpg" alt="Product 1"></td>
+                <td>$10.00</td>
+                <td>2</td>
+                <td>$20.00</td>
+            </tr>
+
+            <!-- Product 2 -->
+            <tr>
+                <td>Product Name 2</td>
+                <td><img src="product2.jpg" alt="Product 2"></td>
+                <td>$15.00</td>
+                <td>1</td>
+                <td>$15.00</td>
+            </tr>
+            <!-- Add more product rows as needed -->
+
+            <!-- Subtotal -->
+            <tr>
+                <td colspan="4" style="text-align: right;">Subtotal</td>
+                <td>$35.00</td>
+            </tr>
+
+            <!-- Shipping Fee -->
+            <tr>
+                <td colspan="4" style="text-align: right;">Shipping Fee</td>
+                <td>$5.00</td>
+            </tr>
+
+            <!-- Total Amount -->
+            <tr>
+                <td colspan="4" style="text-align: right; font-weight: bold;">Total Amount</td>
+                <td style="font-weight: bold;">$40.00</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Thank you for choosing our products. If you have any questions, please contact us.</p>
+</body>
+</html>
