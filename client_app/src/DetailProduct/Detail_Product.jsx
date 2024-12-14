@@ -19,6 +19,7 @@ function Detail_Product() {
     // Get count từ redux khi user chưa đăng nhập
     const count_change = useSelector(state => state.Count.isLoad)
     const [sale, setSale] = useState()
+    const [showWarning, setShowWarning] = useState(false);
     // Hàm này dùng để gọi API hiển thị sản phẩm
     useEffect(() => {
         const fetchData = async () => {
@@ -67,7 +68,27 @@ function Detail_Product() {
         set_count(count - 1)
     }
     const upCount = () => {
-        set_count(count + 1)
+        if (count < product.depository) {
+            set_count(count + 1)
+        }
+    }
+
+    const handleCountChange = (e) => {
+        const value = parseInt(e.target.value)
+        if (isNaN(value) || value < 1) {
+            set_count(1)
+            setShowWarning(false)
+        } else if (value > product.depository) {
+            set_count(product.depository)
+            setShowWarning(true)
+            // Tự động ẩn thông báo sau 3 giây
+            setTimeout(() => {
+                setShowWarning(false)
+            }, 7000)
+        } else {
+            set_count(value)
+            setShowWarning(false)
+        }
     }
 
     // State dùng để mở modal
@@ -227,7 +248,7 @@ function Detail_Product() {
                                                                 className="cart-plus-minus-box"
                                                                 value={count}
                                                                 type="text"
-                                                                onChange={(e) => set_count(e.target.value)}
+                                                                onChange={handleCountChange}
                                                             />
                                                             <div className="dec qtybutton" onClick={downCount}>
                                                                 <i className="fa fa-angle-down"></i>
@@ -236,6 +257,15 @@ function Detail_Product() {
                                                                 <i className="fa fa-angle-up"></i>
                                                             </div>
                                                         </div>
+                                                        {showWarning && (
+                                                            <div style={{
+                                                                color: 'red',
+                                                                fontSize: '14px',
+                                                                marginTop: '5px'
+                                                            }}>
+                                                                Số lượng bạn mua đã vượt quá số lượng trong kho
+                                                            </div>
+                                                        )}
                                                     </div>
                                                     <a
                                                         href="#"
