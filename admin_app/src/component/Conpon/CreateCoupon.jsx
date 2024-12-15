@@ -41,12 +41,12 @@ function CreateCoupon(props) {
     const validateDates = () => {
         const startDate1 = new Date(startDate);
         const endDate1 = new Date(endDate);
-        const now = new Date();
+        //const now = new Date();
 
-        if (startDate1 < now) {
-            alert('Ngày bắt đầu phải lớn hơn ngày hiện tại');
-            return false;
-        }
+        // if (startDate1 < now) {
+        //     alert('Ngày bắt đầu phải lớn hơn ngày hiện tại');
+        //     return false;
+        // }
 
         if (endDate1 <= startDate1) {
             alert('Ngày kết thúc phải lớn hơn ngày bắt đầu');
@@ -75,6 +75,7 @@ function CreateCoupon(props) {
                                                 </button>
                                             </div>
                                         ) :
+
                                         (
                                             <p className="form-text text-danger">{showMessage}</p>
                                         )

@@ -73,10 +73,10 @@ function UpdateCoupon(props) {
         const endDate = new Date(end);
         const now = new Date();
 
-        if (endDate < now) {
-            alert('Ngày kết thúc phải lớn hơn ngày hiện tại');
-            return false;
-        }
+        // if (endDate < now) {
+        //     alert('Ngày kết thúc phải lớn hơn ngày hiện tại');
+        //     return false;
+        // }
 
         if (endDate <= startDate) {
             alert('Ngày kết thúc phải lớn hơn ngày bắt đầu');

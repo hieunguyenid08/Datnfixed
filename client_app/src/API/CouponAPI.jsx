@@ -12,11 +12,11 @@ const CouponAPI = {
         return axiosClient.patch(url)
     },
 
+   
     getCoupons: (query) => {
-        const url = `/api/admin/coupon${query}`
+        const url = `/Api/admin/coupon${query}`
         return axiosClient.get(url)
     },
-
     getCoupon: (id) => {
         const url = `/api/admin/coupon/${id}`
         return axiosClient.get(url)
