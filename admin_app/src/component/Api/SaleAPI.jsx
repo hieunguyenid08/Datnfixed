@@ -19,8 +19,14 @@ const SaleAPI = {
 
     updateSale: (id, data) => {
         const url = `/admin/sale/${id}`
-        return axiosClient.patch(url, data)
-    }
+        return axiosClient.put(url, data)
+    }, showProductSale: (id) => {
+        const url = `/admin/sale/list/product${id}`
+        return axiosClient.get(url)
+    },showSaleList: (id) => {
+        const url = `/admin/sale/list${id}`
+        return axiosClient.get(url)
+    },
 
 }
 

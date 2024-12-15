@@ -93,7 +93,9 @@ function Header(props) {
         dispatch(action)
         sessionStorage.clear()
         localStorage.clear('jwt')
+        window.location.reload()
     }
+
     // Get trạng thái từ redux khi user chưa đăng nhập
     const count = useSelector(state => state.Count.isLoad)
     // Hàm này dùng để load lại dữ liệu giỏ hàng ở phần header khi có bất kì thay đổi nào

@@ -19,27 +19,11 @@ function Event(props) {
 
 
     useEffect(() => {
-        const query = '?' + queryString.stringify(pagination);
+        const query = '?' + queryString.stringify(pagination)
         const fetchAllData = async () => {
-          const token = localStorage.getItem('jwt');  // Get token from localStorage
-    
-          if (!token) {
-            console.error('No JWT token found');
-            return;
-          }
-    
-          try {
-            const response = await CouponAPI.getCoupons(query, {
-              headers: {
-                'Authorization': `Bearer ${token}`
-              }
-            });        // Update state with fetched data
-            setCoupons(response);
-            setTotalPage(response.totalPage);
-          } catch (error) {
-            console.error('Error fetching data:', error);
-            // Handle error (maybe show a message to the user)
-          }
+            const response = await CouponAPI.getCoupons(query)
+            setCoupons(response.coupons)
+            setTotalPage(response.totalPage)
           
         };
     
