@@ -116,6 +116,7 @@ function CreateSale(props) {
 
                                     <button type="submit" className="btn btn-primary">Create Sale</button>
                                 </form>
+                                
                             </div>
                         </div>
                     </div>

@@ -5,7 +5,10 @@ var schema = new mongoose.Schema(
         code: String,
         count: Number,
         promotion: String,
-        describe: String
+        describe: String,
+        start: Date,
+        end: Date,
+        status: Boolean
     }
 );
 

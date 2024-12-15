@@ -12,7 +12,16 @@ module.exports.index = async (req, res) => {
     let end = page * perPage;
 
     const sale = await Sale.find().populate('id_product');
-
+    // check sale status start end date
+    // const currentDate = new Date();
+    // for (const sale1 of sale) {
+    //     if (sale1.status === false){ //&& currentDate > sale1.end) {
+    //         console.log(`Voucher với ID: ${sale1._id} đã hết hạn`);
+    //         console.log(`Ngày hiện tại: ${currentDate}`);
+    //         sale1.status = true;
+    //         await sale1.save();
+    //     }
+    // }
     if (!keyWordSearch) {
         res.json({
             sale: sale.slice(start, end),
@@ -38,14 +47,14 @@ module.exports.create = async (req, res) => {
     let flag = false
 
     check.forEach(value => {
-        if (value.status === true){
+        if (value.status === true) {
             flag = true
-        } 
+        }
     })
 
-    if (flag){
+    if (flag) {
         res.send("Sản phẩm này đã có khuyến mãi")
-    }else{
+    } else {
         await Sale.create(req.body)
 
         res.send("Bạn đã thêm thành công")
@@ -94,12 +103,12 @@ module.exports.detailList = async (req, res) => {
 
     const sale = await (await Sale.findOne({ id_product: id, status: true }).populate('id_product'));
 
-    if (sale){
+    if (sale) {
         res.json({
             msg: "Thanh Cong",
             sale: sale
         })
-    }else{
+    } else {
         res.json({
             msg: "That Bai"
         })

@@ -30,6 +30,7 @@ function Sale(props) {
                 const ct = await SaleAPI.getAll(query);
                 setTotalPage(ct.totalPage);
                 setSale(ct.sale);
+                console.log(ct.sale);
             } catch (err) {
                 console.error(err.message || 'An error occurred');
             }
@@ -91,7 +92,7 @@ function Sale(props) {
                                             {
                                                 sale && sale.map((value, index) => (
                                                     <tr key={index}>
-                                                        <td className="name">{value._id}</td>
+                                                        <td className="name">{value.id_product?.name_product}</td>
                                                         <td className="name">{value.promotion}</td>
                                                         <td className="name">{value.describe}</td>
                                                         <td className="name">{value.start}</td>

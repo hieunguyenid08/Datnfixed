@@ -4,7 +4,7 @@ var router = express.Router()
 
 const Coupon = require('../../Controller/admin/coupon.controller')
 const MiddleWare = require('../../MiddleWare');
-router.get('/', MiddleWare.verifyToken, Coupon.index)
+router.get('/', Coupon.index)
 
 router.get('/:id', Coupon.detail)
 

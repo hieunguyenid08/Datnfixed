@@ -13,7 +13,7 @@ module.exports.index = async (req, res) => {
     let end = page * perPage;
 
     const coupon = await Coupon.find();
-
+    console.log(coupon);
     if (!keyWordSearch) {
         res.json({
             coupons: coupon.slice(start, end),
@@ -52,6 +52,10 @@ module.exports.update = async (req, res) => {
     coupon.count = req.body.count
     coupon.promotion = req.body.promotion
     coupon.describe = req.body.describe
+    coupon.start = req.body.start
+    coupon.end = req.body.end
+    coupon.status = req.body.status
+
 
     coupon.save()
 

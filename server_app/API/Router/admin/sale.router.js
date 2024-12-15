@@ -10,7 +10,7 @@ router.post('/', Sale.create)
 
 router.get('/:id', Sale.detail)
 
-router.patch('/:id', Sale.update)
+router.put('/:id', Sale.update)
 
 router.get('/list/product', Sale.list)
 
