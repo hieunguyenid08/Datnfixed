@@ -19,6 +19,7 @@ function Detail_Product() {
     // Get count từ redux khi user chưa đăng nhập
     const count_change = useSelector(state => state.Count.isLoad)
     const [sale, setSale] = useState()
+    const [showWarning, setShowWarning] = useState(false);
     // Hàm này dùng để gọi API hiển thị sản phẩm
     useEffect(() => {
         const fetchData = async () => {
@@ -67,7 +68,27 @@ function Detail_Product() {
         set_count(count - 1)
     }
     const upCount = () => {
-        set_count(count + 1)
+        if (count < product.depository) {
+            set_count(count + 1)
+        }
+    }
+
+    const handleCountChange = (e) => {
+        const value = parseInt(e.target.value)
+        if (isNaN(value) || value < 1) {
+            set_count(1)
+            setShowWarning(false)
+        } else if (value > product.depository) {
+            set_count(product.depository)
+            setShowWarning(true)
+            // Tự động ẩn thông báo sau 7 giây
+            setTimeout(() => {
+                setShowWarning(false)
+            }, 7000)
+        } else {
+            set_count(value)
+            setShowWarning(false)
+        }
     }
 
     // State dùng để mở modal
@@ -120,6 +141,18 @@ function Detail_Product() {
             set_load_comment(false)
         }
     }, [load_comment])
+
+    // Thêm state để lưu số sao trung bình
+    const [averageRating, setAverageRating] = useState(0)
+
+    // Thêm hàm tính số sao trung bình vào trước return
+    useEffect(() => {
+        if (list_comment && list_comment.length > 0) {
+            const totalStars = list_comment.reduce((sum, comment) => sum + comment.star, 0)
+            const average = totalStars / list_comment.length
+            setAverageRating(average)
+        }
+    }, [list_comment])
 
     return (
         <div>
@@ -216,6 +249,25 @@ function Detail_Product() {
                                         {product.describe}
                                     </div>
 
+                                    <div className="average-rating mb-15">
+                                        <span style={{ marginRight: '10px' }}>Đánh giá trung bình: </span>
+                                        <div style={{ display: 'inline-block' }}>
+                                            <ul className="rating d-inline-block">
+                                                <li><i className={averageRating >= 1 ? 'fa fa-star' : averageRating >= 0.5 ? 'fa fa-star-half-o' : 'fa fa-star-o'}></i></li>
+                                                <li><i className={averageRating >= 2 ? 'fa fa-star' : averageRating >= 1.5 ? 'fa fa-star-half-o' : 'fa fa-star-o'}></i></li>
+                                                <li><i className={averageRating >= 3 ? 'fa fa-star' : averageRating >= 2.5 ? 'fa fa-star-half-o' : 'fa fa-star-o'}></i></li>
+                                                <li><i className={averageRating >= 4 ? 'fa fa-star' : averageRating >= 3.5 ? 'fa fa-star-half-o' : 'fa fa-star-o'}></i></li>
+                                                <li><i className={averageRating >= 5 ? 'fa fa-star' : averageRating >= 4.5 ? 'fa fa-star-half-o' : 'fa fa-star-o'}></i></li>
+                                            </ul>
+                                            <span style={{ marginLeft: '10px', fontWeight: 'bold' }}>
+                                                {averageRating.toFixed(1)}/5
+                                            </span>
+                                            <span style={{ marginLeft: '10px' }}>
+                                                ({list_comment.length} đánh giá)
+                                            </span>
+                                        </div>
+                                    </div>
+
                                     <div className="single-add-to-cart">
                                         <form action="#" className="cart-quantity">
                                             {product.depository !== 0 && (
@@ -227,7 +279,7 @@ function Detail_Product() {
                                                                 className="cart-plus-minus-box"
                                                                 value={count}
                                                                 type="text"
-                                                                onChange={(e) => set_count(e.target.value)}
+                                                                onChange={handleCountChange}
                                                             />
                                                             <div className="dec qtybutton" onClick={downCount}>
                                                                 <i className="fa fa-angle-down"></i>
@@ -236,6 +288,15 @@ function Detail_Product() {
                                                                 <i className="fa fa-angle-up"></i>
                                                             </div>
                                                         </div>
+                                                        {showWarning && (
+                                                            <div style={{
+                                                                color: 'red',
+                                                                fontSize: '14px',
+                                                                marginTop: '5px'
+                                                            }}>
+                                                                Số lượng bạn mua đã vượt quá số lượng trong kho
+                                                            </div>
+                                                        )}
                                                     </div>
                                                     <a
                                                         href="#"

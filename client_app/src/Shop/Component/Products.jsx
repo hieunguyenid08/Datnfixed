@@ -72,12 +72,21 @@ function Products(props) {
                                         </h5>
                                         <div className="rating-box">
                                             <ul className="rating">
-                                                <li><i className="fa fa-star-o"></i></li>
-                                                <li><i className="fa fa-star-o"></i></li>
-                                                <li><i className="fa fa-star-o"></i></li>
-                                                <li><i className="fa fa-star-o"></i></li>
-                                                <li className="no-star"><i className="fa fa-star-o"></i></li>
+                                                {[1, 2, 3, 4, 5].map((star) => (
+                                                    <li key={star}>
+                                                        <i className={
+                                                            value.rating >= star 
+                                                                ? "fa fa-star"
+                                                                : value.rating >= star - 0.5
+                                                                    ? "fa fa-star-half-o"
+                                                                    : "fa fa-star-o"
+                                                        }></i>
+                                                    </li>
+                                                ))}
                                             </ul>
+                                            <span style={{ marginLeft: '10px', fontSize: '14px' }}>
+                                                {value.rating ? value.rating.toFixed(1) : '0'}/5
+                                            </span>
                                         </div>
                                     </div>
                                     <Link to={`/detail/${value._id}`}><h4 style={{height:40,display:'flex',alignItems:'center'}}className='product_name'>{value.name_product}</h4></Link>

@@ -20,9 +20,17 @@ function Shop() {
         page: '1',
         count: '9',
         search: '',
-        category: id
+        category: id,
+        sort: 'default'
     })
 
+    // Thêm hàm xử lý sort
+    const handleSortChange = (e) => {
+        setPagination({
+            ...pagination,
+            sort: e.target.value
+        })
+    }
 
     //Hàm này dùng để thay đổi state pagination.page
     //Nó sẽ truyền xuống Component con và nhận dữ liệu từ Component con truyền lên
@@ -33,7 +41,8 @@ function Shop() {
             page: value,
             count: pagination.count,
             search: pagination.search,
-            category: pagination.category
+            category: pagination.category,
+            sort: pagination.sort
         })
     }
 
@@ -46,7 +55,8 @@ function Shop() {
                 page: pagination.page,
                 count: pagination.count,
                 search: pagination.search,
-                category: id
+                category: id,
+                sort: pagination.sort
             }
 
             const query = '?' + queryString.stringify(params)
@@ -85,7 +95,8 @@ function Shop() {
                 page: pagination.page,
                 count: pagination.count,
                 search: pagination.search,
-                category: id
+                category: id,
+                sort: pagination.sort
             }
 
             const query = '?' + queryString.stringify(params)
@@ -128,7 +139,8 @@ function Shop() {
             page: pagination.page,
             count: pagination.count,
             search: value,
-            category: pagination.category
+            category: pagination.category,
+            sort: pagination.sort
         })
 
     }
@@ -171,7 +183,8 @@ function Shop() {
                                                         page: '1',
                                                         count: '9',
                                                         search: '',
-                                                        category: id
+                                                        category: id,
+                                                        sort: 'default'
                                                     })} to={`/shop/${value._id}`} style={id === value._id ? { cursor: 'pointer', color: '#fed700' } : { cursor: 'pointer' }}>{value.category}</Link></h4>
                                                 </li>
                                             ))
@@ -188,10 +201,11 @@ function Shop() {
                                 <div className="product-select-box">
                                     <div className="product-short">
                                         <p>Sắp xếp theo:</p>
-                                        <select className="nice-select">
-                                            <option value="trending">Đánh giá</option>
-                                            <option value="rating">Giá (Thấp &gt; Cao)</option>
-                                            <option value="rating">Giá (Cao &gt; Thấp)</option>
+                                        <select className="nice-select" value={pagination.sort} onChange={handleSortChange}>
+                                            <option value="default">Mặc định</option>
+                                            <option value="rating">Đánh giá cao nhất</option>
+                                            <option value="price_asc">Giá (Thấp → Cao)</option>
+                                            <option value="price_desc">Giá (Cao → Thấp)</option>
                                         </select>
                                     </div>
                                 </div>

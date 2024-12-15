@@ -1,6 +1,7 @@
-
 const Products = require('../../Models/product')
 const Category = require('../../Models/category')
+const Comment = require('../../Models/comment')
+const Sale = require('../../Models/sale')
 
 
 module.exports.index = async (req, res) => {
@@ -52,44 +53,71 @@ module.exports.detail = async (req, res) => {
 // QT: Tìm kiếm phân loại và phân trang sản phẩm
 module.exports.pagination = async (req, res) => {
 
-    //Lấy page từ query
     const page = parseInt(req.query.page) || 1
-
-    //Lấy số lượng từ query
     const numberProduct = parseInt(req.query.count) || 1
-
-    //Lấy key search từ query
     const keyWordSearch = req.query.search
-
-    //Lấy category từ query
     const category = req.query.category
+    const sort = req.query.sort
 
-    //Lấy sản phẩm đầu và sẩn phẩm cuối
     var start = (page - 1) * numberProduct
     var end = page * numberProduct
 
     var products
 
-    //Phân loại điều kiện category từ client gửi lên
     if (category === 'all'){
         products = await Products.find()
-    }else{
+    } else {
         products = await Products.find({ id_category: category })
     }
 
-    var paginationProducts = products.slice(start, end)
+    // Lấy tất cả khuyến mãi đang active
+    const activeSales = await Sale.find({ status: true })
 
+    // Lấy rating và tính giá sau khuyến mãi cho mỗi sản phẩm
+    const productsWithRatingsAndPrice = await Promise.all(products.map(async (product) => {
+        // Lấy rating
+        const comments = await Comment.find({ id_product: product._id })
+        const rating = comments.length > 0 
+            ? comments.reduce((sum, comment) => sum + comment.star, 0) / comments.length 
+            : 0
+
+        // Tìm khuyến mãi cho sản phẩm
+        const sale = activeSales.find(s => s.id_product.toString() === product._id.toString())
+        
+        // Tính giá sau khuyến mãi
+        const finalPrice = sale 
+            ? product.price_product - (product.price_product * sale.promotion / 100)
+            : product.price_product
+
+        return {
+            ...product._doc,
+            rating,
+            finalPrice
+        }
+    }))
+
+    // Sắp xếp sản phẩm theo tiêu chí
+    switch(sort) {
+        case 'rating':
+            productsWithRatingsAndPrice.sort((a, b) => b.rating - a.rating)
+            break
+        case 'price_asc':
+            productsWithRatingsAndPrice.sort((a, b) => a.finalPrice - b.finalPrice)
+            break
+        case 'price_desc':
+            productsWithRatingsAndPrice.sort((a, b) => b.finalPrice - a.finalPrice)
+            break
+    }
+
+    var paginationProducts = productsWithRatingsAndPrice.slice(start, end)
 
     if (!keyWordSearch){
-        
         res.json(paginationProducts)
-
-    }else{
+    } else {
         var newData = paginationProducts.filter(value => {
             return value.name_product.toUpperCase().indexOf(keyWordSearch.toUpperCase()) !== -1 ||
-            value.price_product.toUpperCase().indexOf(keyWordSearch.toUpperCase()) !== -1
+            value.finalPrice.toString().toUpperCase().indexOf(keyWordSearch.toUpperCase()) !== -1
         })
-
         res.json(newData)
     }
 
