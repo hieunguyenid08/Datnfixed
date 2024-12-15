@@ -58,6 +58,7 @@ module.exports.pagination = async (req, res) => {
     const keyWordSearch = req.query.search
     const category = req.query.category
     const sort = req.query.sort
+    const brandFilter = req.query.brand
 
     var start = (page - 1) * numberProduct
     var end = page * numberProduct
@@ -68,6 +69,10 @@ module.exports.pagination = async (req, res) => {
         products = await Products.find()
     } else {
         products = await Products.find({ id_category: category })
+    }
+
+    if (brandFilter) {
+        products = products.filter(product => product.brand === brandFilter)
     }
 
     // Lấy tất cả khuyến mãi đang active
@@ -116,7 +121,8 @@ module.exports.pagination = async (req, res) => {
     } else {
         var newData = paginationProducts.filter(value => {
             return value.name_product.toUpperCase().indexOf(keyWordSearch.toUpperCase()) !== -1 ||
-            value.finalPrice.toString().toUpperCase().indexOf(keyWordSearch.toUpperCase()) !== -1
+            value.finalPrice.toString().toUpperCase().indexOf(keyWordSearch.toUpperCase()) !== -1 ||
+            (value.brand && value.brand.toUpperCase().indexOf(keyWordSearch.toUpperCase()) !== -1)
         })
         res.json(newData)
     }

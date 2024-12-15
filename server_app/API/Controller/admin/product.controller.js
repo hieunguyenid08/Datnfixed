@@ -4,6 +4,7 @@ const Detail_Order = require('../../../Models/detail_order')
 module.exports.index = async (req, res) => {
     let page = parseInt(req.query.page) || 1;
     const keyWordSearch = req.query.search;
+    const brandFilter = req.query.brand;
 
     const perPage = parseInt(req.query.limit) || 8;
     const totalPage = Math.ceil(await Product.countDocuments() / perPage);
@@ -11,34 +12,34 @@ module.exports.index = async (req, res) => {
     let start = (page - 1) * perPage;
     let end = page * perPage;
 
-    const products = await Product.find().populate('id_category');
+    let products = await Product.find().populate('id_category');
 
+    if (brandFilter) {
+        products = products.filter(product => product.brand === brandFilter);
+    }
 
     if (!keyWordSearch) {
         res.json({
             products: products.slice(start, end),
-            totalPage: totalPage
+            totalPage: Math.ceil(products.length / perPage)
         })
-
     } else {
         var newData = products.filter(value => {
             return value.name_product.toUpperCase().indexOf(keyWordSearch.toUpperCase()) !== -1 ||
                 value.price_product.toUpperCase().indexOf(keyWordSearch.toUpperCase()) !== -1 ||
-                value.id.toUpperCase().indexOf(keyWordSearch.toUpperCase()) !== -1
-            // value.id_category.category.toUpperCase().indexOf(keyWordSearch.toUpperCase()) !== -1
+                value.id.toUpperCase().indexOf(keyWordSearch.toUpperCase()) !== -1 ||
+                (value.brand && value.brand.toUpperCase().indexOf(keyWordSearch.toUpperCase()) !== -1)
         })
 
         res.json({
             products: newData.slice(start, end),
-            totalPage: totalPage
+            totalPage: Math.ceil(newData.length / perPage)
         })
     }
 }
 
 module.exports.create = async (req, res) => {
     try {
-        // const products = await Product.find();
-
         const newProduct = new Product();
         req.body.name_product = req.body.name_product
             .toLowerCase()
@@ -51,6 +52,7 @@ module.exports.create = async (req, res) => {
         newProduct.gender = req.body.gender;
         newProduct.image = req.body.image;
         newProduct.depository = req.body.depository;
+        newProduct.brand = req.body.brand;
         await newProduct.save();
         res.json({ msg: "Bạn đã thêm thành công" })
     } catch (error) {
@@ -58,7 +60,6 @@ module.exports.create = async (req, res) => {
         res.status(500).json({ msg: "Có lỗi xảy ra", error: error.message });
     }
 };
-// }
 
 module.exports.delete = async (req, res) => {
     const id = req.query.id;
@@ -94,62 +95,37 @@ module.exports.details = async (req, res, next) => {
 };
 
 module.exports.update = async (req, res) => {
-    console.log(req.body);
-    // const product = await Product.find();
-
-    // const productFilter = product.filter((c) => {
-    //     return c.name_product.toUpperCase() === req.body.name_product.toUpperCase().trim() && c.id !== req.body.id
-    // });
-
-    // if (productFilter.length > 0) {
-    //     res.json({ msg: 'Sản phẩm đã tồn tại' })
-    // } else {
-        req.body.name_product = req.body.name_product.toLowerCase().replace(/^.|\s\S/g, a => { return a.toUpperCase() })
-
-
-        // if (req.files) {
-        //     var fileImage = req.files.file;
-
-        //     var fileName = fileImage.name
-
-
-        //     var fileProduct = "/img/" + fileName
-
-        //     await Product.updateOne({ _id: req.body._id }, {
-        //         name_product: req.body.name_product,
-        //         price_product: req.body.price_product,
-        //         id_category: req.body.id_category,
-        //         // number: req.body.number,
-        //         describe: req.body.description,
-        //         gender: req.body.gender,
-        //         image: fileProduct
-        //     }, function (err, res) {
-        //         if (err) return res.json({ msg: err });
-        //     });
-        //     res.json({ msg: "Bạn đã update thành công" })
-
-        //     fileImage.mv('./public/img/' + fileName)
-        // }
-        // else {
-            await Product.updateOne({ _id: req.body._id }, {
-                name_product: req.body.name_product,
-                price_product: req.body.price_product,
-                id_category: req.body.category,
-                image: req.body.image,
-                // number: req.body.number,
-                describe: req.body.description,
-                gender: req.body.gender,
-                depository:req.body.depository,
-            }, function (err, res) {
-                if (err) return res.json({ msg: err });
-            });
-            res.json({ msg: "Bạn đã update thành công" })
+    try {
+        // Lấy sản phẩm hiện tại
+        const currentProduct = await Product.findById(req.body._id);
+        if (!currentProduct) {
+            return res.status(404).json({ msg: "Không tìm thấy sản phẩm" });
         }
 
+        // Tạo object chứa các trường cần update
+        const updateFields = {};
+        
+        // Chỉ cập nhật các trường có trong request
+        if (req.body.name_product) updateFields.name_product = req.body.name_product;
+        if (req.body.price_product) updateFields.price_product = req.body.price_product;
+        if (req.body.category) updateFields.id_category = req.body.category;
+        if (req.body.image) updateFields.image = req.body.image;
+        if (req.body.description) updateFields.describe = req.body.description;
+        if (req.body.gender) updateFields.gender = req.body.gender;
+        if (req.body.depository) updateFields.depository = req.body.depository;
+        if (req.body.brand) updateFields.brand = req.body.brand;
 
-    // }
-// }
+        // Thực hiện update với các trường đã được thay đổi
+        await Product.updateOne(
+            { _id: req.body._id }, 
+            { $set: updateFields }
+        );
 
+        res.json({ msg: "Bạn đã update thành công" });
+    } catch (error) {
+        res.status(500).json({ msg: "Có lỗi xảy ra", error: error.message });
+    }
+};
 
 module.exports.updateDepository = async (req, res) => {
     try {
@@ -175,7 +151,7 @@ module.exports.updateDepository = async (req, res) => {
             return res.status(404).json({ msg: "Không tìm thấy sản phẩm" });
         }
 
-        // Tính toán giá trị `depository` mới
+        // Tính toán gi�� trị `depository` mới
         const newDepository = product.depository - totalCountToSubtract;
 
         // Bước 4: Cập nhật lại `depository` của sản phẩm

@@ -12,7 +12,7 @@ var schema = new mongoose.Schema(
         describe: String,
         gender: String,
         depository: Number,
-        // number: Number,
+        brand: String,
     }
 );
 

@@ -13,14 +13,14 @@ function Product(props) {
         page: '1',
         limit: '5',
         search: '',
-        status: true
+        status: true,
+        brand: ''
     })
 
     const [products, setProducts] = useState([])
     const [totalPage, setTotalPage] = useState()
     const [loading, setLoading] = useState(true);
-
-
+    const [brands, setBrands] = useState([]);
 
     useEffect(() => {
         const query = '?' + queryString.stringify(filter);
@@ -40,6 +40,18 @@ function Product(props) {
         fetchAllData();
     }, [filter]);
 
+    useEffect(() => {
+        const fetchBrands = async () => {
+            try {
+                const response = await productAPI.getAll();
+                const uniqueBrands = [...new Set(response.map(product => product.brand))].filter(Boolean);
+                setBrands(uniqueBrands);
+            } catch (error) {
+                console.error("Failed to fetch brands", error);
+            }
+        };
+        fetchBrands();
+    }, []);
 
     const onPageChange = (value) => {
         setFilter({
@@ -73,6 +85,14 @@ function Product(props) {
         }
     }
 
+    const handleBrandFilter = (brand) => {
+        setFilter({
+            ...filter,
+            page: '1',
+            brand: brand
+        });
+    };
+
     return (
         <div className="page-wrapper">
     <LoadingOverlay
@@ -89,6 +109,21 @@ function Product(props) {
                                 <h4 className="card-title">Products</h4>
                                 <Search handlerSearch={handlerSearch} />
 
+                                <div className="form-group d-inline-block ml-2">
+                                    <select 
+                                        className="form-control" 
+                                        value={filter.brand} 
+                                        onChange={(e) => handleBrandFilter(e.target.value)}
+                                    >
+                                        <option value="">Tất cả thương hiệu</option>
+                                        {brands.map((brand, index) => (
+                                            <option key={index} value={brand}>
+                                                {brand}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
                                 <Link to="/product/create" className="btn btn-primary my-3">New create</Link>
                                 <div className="table-responsive">
                                 {/* {loading?(<div style={{display:'flex',justifyContent:'center',alignItems:'center'}}><ReactLoading type="bars" height={'20%'} width={'20%'} color="coral"/></div>): */}
@@ -100,7 +135,7 @@ function Product(props) {
                                                 <th>Price</th>
                                                 <th>Image</th>
                                                 <th>Describe</th>
-                                                {/* <th>Producer</th> */}
+                                                <th>Brand</th>
                                                 <th>Category</th>
                                                 <th>Edit</th>
                                             </tr>
@@ -116,6 +151,7 @@ function Product(props) {
                                                         <td>{new Intl.NumberFormat('vi-VN',{style: 'decimal',decimal: 'VND'}).format(value.price_product)+ ' VNĐ'}</td>
                                                         <td><img src={value.image} alt="" style={{ width: '70px' }} /></td>
                                                         <td className="name" style={{ width: '40px' }}>{value.describe}</td>
+                                                        <td className="name">{value.brand || 'Chưa có'}</td>
                                                         <td>{value.id_category ? value.id_category.category : ""}</td>
                                                         <td>
                                                             <div className="d-flex">

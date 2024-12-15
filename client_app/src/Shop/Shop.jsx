@@ -6,6 +6,20 @@ import Products from './Component/Products';
 import Pagination from './Component/Pagination';
 import Search from './Component/Search';
 
+// Thay thế useEffect fetch brands bằng danh sách cố định
+const POPULAR_BRANDS = [
+    "Samsung",
+    "LG",
+    "Apple",
+    "Sony",
+    "Panasonic",
+    "Toshiba",
+    "Sharp",
+    "Xiaomi",
+    "Philips",
+    "Electrolux"
+];
+
 function Shop() {
 
     const { id } = useParams()
@@ -21,8 +35,21 @@ function Shop() {
         count: '9',
         search: '',
         category: id,
-        sort: 'default'
+        sort: 'default',
+        brand: ''
     })
+
+    // Thêm state để lưu danh sách brands
+    const [brands] = useState(POPULAR_BRANDS); // Thay thế state brands bằng danh sách cố định
+
+    // Thêm handler cho việc lọc theo brand
+    const handleBrandFilter = (e) => {
+        setPagination({
+            ...pagination,
+            page: '1',
+            brand: e.target.value
+        });
+    };
 
     // Thêm hàm xử lý sort
     const handleSortChange = (e) => {
@@ -42,7 +69,8 @@ function Shop() {
             count: pagination.count,
             search: pagination.search,
             category: pagination.category,
-            sort: pagination.sort
+            sort: pagination.sort,
+            brand: pagination.brand
         })
     }
 
@@ -56,7 +84,8 @@ function Shop() {
                 count: pagination.count,
                 search: pagination.search,
                 category: id,
-                sort: pagination.sort
+                sort: pagination.sort,
+                brand: pagination.brand
             }
 
             const query = '?' + queryString.stringify(params)
@@ -96,7 +125,8 @@ function Shop() {
                 count: pagination.count,
                 search: pagination.search,
                 category: id,
-                sort: pagination.sort
+                sort: pagination.sort,
+                brand: pagination.brand
             }
 
             const query = '?' + queryString.stringify(params)
@@ -140,7 +170,8 @@ function Shop() {
             count: pagination.count,
             search: value,
             category: pagination.category,
-            sort: pagination.sort
+            sort: pagination.sort,
+            brand: pagination.brand
         })
 
     }
@@ -184,7 +215,8 @@ function Shop() {
                                                         count: '9',
                                                         search: '',
                                                         category: id,
-                                                        sort: 'default'
+                                                        sort: 'default',
+                                                        brand: ''
                                                     })} to={`/shop/${value._id}`} style={id === value._id ? { cursor: 'pointer', color: '#fed700' } : { cursor: 'pointer' }}>{value.category}</Link></h4>
                                                 </li>
                                             ))
@@ -199,14 +231,36 @@ function Shop() {
                         <div className="col-lg-9 order-1 order-lg-2">
                             <div className="shop-top-bar">
                                 <div className="product-select-box">
-                                    <div className="product-short">
-                                        <p>Sắp xếp theo:</p>
-                                        <select className="nice-select" value={pagination.sort} onChange={handleSortChange}>
-                                            <option value="default">Mặc định</option>
-                                            <option value="rating">Đánh giá cao nhất</option>
-                                            <option value="price_asc">Giá (Thấp → Cao)</option>
-                                            <option value="price_desc">Giá (Cao → Thấp)</option>
-                                        </select>
+                                    <div className="product-short d-flex align-items-center">
+                                        <div className="mr-4">
+                                            <p>Sắp xếp theo:</p>
+                                            <select 
+                                                className="nice-select" 
+                                                value={pagination.sort} 
+                                                onChange={handleSortChange}
+                                            >
+                                                <option value="default">Mặc định</option>
+                                                <option value="rating">Đánh giá cao nhất</option>
+                                                <option value="price_asc">Giá (Thấp → Cao)</option>
+                                                <option value="price_desc">Giá (Cao → Thấp)</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div>
+                                            <p>Thương hiệu:</p>
+                                            <select 
+                                                className="nice-select" 
+                                                value={pagination.brand} 
+                                                onChange={handleBrandFilter}
+                                            >
+                                                <option value="">Tất cả thương hiệu</option>
+                                                {brands.map((brand, index) => (
+                                                    <option key={index} value={brand}>
+                                                        {brand}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

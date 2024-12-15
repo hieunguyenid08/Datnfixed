@@ -23,6 +23,8 @@ function UpdateProduct(props) {
     const { handleSubmit } = useForm();
     const [loading, setLoading] = useState(true);
     const [newImage, setNewImage] = useState();
+    const [brand, setBrand] = useState('');
+    const [rs, setRs] = useState(null);
 
 
     useEffect(() => {
@@ -30,17 +32,21 @@ function UpdateProduct(props) {
             setLoading(true);
             try {
                 const ct = await categoryAPI.getAPI();
-                const rs = await productAPI.details(id);
-                console.log(rs);
-                setName(rs.name_product);
-                setPrice(rs.price_product);
-                setDescription(rs.describe);
-                setCategoryChoose(rs.id_category);
-                setImage(rs.image);
+                const response = await productAPI.details(id);
+                setRs(response);
+                
+                if (response && response.data) {
+                    setName(response.data.name_product || '');
+                    setPrice(response.data.price_product || '');
+                    setDescription(response.data.describe || '');
+                    setCategoryChoose(response.data.id_category || '');
+                    setImage(response.data.image || '');
+                    setDepository(response.data.depository || '');
+                    setBrand(response.data.brand || '');
+                }
                 setCategory(ct);
-                setDepository(rs.depository);
             } catch (err) {
-                console.error('Failed to fetch data');
+                console.error('Failed to fetch data:', err);
             }
             setLoading(false);
         };
@@ -71,20 +77,22 @@ function UpdateProduct(props) {
 
     const validateAll = () => {
         let msg = {}
-        if (isEmpty(name)) {
-            msg.name = "Tên không được để trống"
-        }
-        if (isEmpty(price)) {
-            msg.price = "Giá không được để trống"
-        }
-        if (isEmpty(description)) {
-            msg.description = "Mô tả không được để trống"
-        }
-        // if (isEmpty(number.toString())) {
-        //     msg.number = "Số lượng không được để trống"
-        // }
-        if (isEmpty(categoryChoose)) {
-            msg.category = "Vui lòng chọn loại"
+        if (rs) {
+            if (name !== rs.data.name_product && isEmpty(name)) {
+                msg.name = "Tên không được để trống"
+            }
+            if (price !== rs.data.price_product && isEmpty(price)) {
+                msg.price = "Giá không được để trống"
+            }
+            if (description !== rs.data.describe && isEmpty(description)) {
+                msg.description = "Mô tả không được để trống"
+            }
+            if (categoryChoose !== rs.data.id_category && isEmpty(categoryChoose)) {
+                msg.category = "Vui lòng chọn loại"
+            }
+            if (brand !== rs.data.brand && isEmpty(brand)) {
+                msg.brand = "Thương hiệu không được để trống"
+            }
         }
 
         setValidationMsg(msg)
@@ -103,25 +111,34 @@ function UpdateProduct(props) {
     const addProduct = async () => {
         const formData = new FormData();
         formData.append("_id", id);
-        // formData.append("file", file);
-        // formData.append("fileName", fileName);
-        formData.append("name_product", name)
-        formData.append("price_product", price)
-        formData.append("category", categoryChoose)
-        formData.append("image", newImage?newImage:image)
-        // formData.append("number", number)
-        formData.append("description", description)
-        formData.append("gender", genderChoose)
-        formData.append("depository", depository)
 
-        const response = await productAPI.update(formData)
+        if (rs) {
+            if (name !== rs.data.name_product) formData.append("name_product", name);
+            if (price !== rs.data.price_product) formData.append("price_product", price);
+            if (categoryChoose !== rs.data.id_category) formData.append("category", categoryChoose);
+            if (newImage) formData.append("image", newImage);
+            if (description !== rs.data.describe) formData.append("description", description);
+            if (genderChoose !== rs.data.gender) formData.append("gender", genderChoose);
+            if (depository !== rs.data.depository) formData.append("depository", depository);
+            if (brand !== rs.data.brand) formData.append("brand", brand);
+        } else {
+            if (name) formData.append("name_product", name);
+            if (price) formData.append("price_product", price);
+            if (categoryChoose) formData.append("category", categoryChoose);
+            if (newImage) formData.append("image", newImage);
+            if (description) formData.append("description", description);
+            if (genderChoose) formData.append("gender", genderChoose);
+            if (depository) formData.append("depository", depository);
+            if (brand) formData.append("brand", brand);
+        }
+
+        const response = await productAPI.update(formData);
 
         if (response.msg === "Bạn đã update thành công") {
-            window.scrollTo(0, 0)
+            window.scrollTo(0, 0);
             setLoading(false);
         }
-        setValidationMsg({ api: response.msg })
-
+        setValidationMsg({ api: response.msg });
     }
 
 
@@ -157,17 +174,17 @@ function UpdateProduct(props) {
                                 <form onSubmit={handleSubmit(handleCreate)}>
                                     <div className="form-group w-50">
                                         <label htmlFor="name">Tên Sản Phẩm</label>
-                                        <input type="text" className="form-control" id="name" name="name" value={name} onChange={(e) => setName(e.target.value)} required />
+                                        <input type="text" className="form-control" id="name" name="name" value={name} onChange={(e) => setName(e.target.value)} />
                                         <p className="form-text text-danger">{validationMsg.name}</p>
                                     </div>
                                     <div className="form-group w-50">
                                         <label htmlFor="price">Giá Sản Phẩm</label>
-                                        <input type="text" className="form-control" id="price" name="price" value={price} onChange={(e) => onChangePrice(e)} required />
+                                        <input type="text" className="form-control" id="price" name="price" value={price} onChange={(e) => onChangePrice(e)} />
                                         <p className="form-text text-danger">{validationMsg.price}</p>
                                     </div>
                                     <div className="form-group w-50">
                                         <label htmlFor="description">Mô tả</label>
-                                        <input type="text" className="form-control" id="description" name="description" value={description} onChange={(e) => setDescription(e.target.value)} required />
+                                        <input type="text" className="form-control" id="description" name="description" value={description} onChange={(e) => setDescription(e.target.value)} />
                                         <p className="form-text text-danger">{validationMsg.description}</p>
                                     </div>
                                     <div className="form-group w-50">
@@ -180,12 +197,18 @@ function UpdateProduct(props) {
                                         <input type="text" className="form-control" id="depository" name="depository" value={depository} onChange={(e) => setDepository(e.target.value)}/>
                                         <p className="form-text text-danger">{validationMsg.depository}</p>
                                     </div>
-                                    {/* <div className="form-group w-50">
-                                        <label htmlFor="number">Số lượng: </label>
-                                        <input type="text" className="form-control" id="number" name="number" value={number} onChange={(e) => onChangeNumber(e)} required />
-                                        <p className="form-text text-danger">{validationMsg.number}</p>
-                                    </div> */}
-
+                                    <div className="form-group w-50">
+                                        <label htmlFor="brand">Thương Hiệu</label>
+                                        <input 
+                                            type="text" 
+                                            className="form-control" 
+                                            id="brand" 
+                                            name="brand" 
+                                            value={brand} 
+                                            onChange={(e) => setBrand(e.target.value)} 
+                                        />
+                                        <p className="form-text text-danger">{validationMsg.brand}</p>
+                                    </div>
                                     <div className="form-group w-50">
                                         {/* <label htmlFor="categories" className="mr-2">Chọn loại:</label> */}
                                         <label htmlFor="categories" className="mr-2">Chọn nhà sản xuất:</label>
