@@ -15,6 +15,8 @@ module.exports.post_order = async (req, res) => {
 
 }
 
+
+
 module.exports.send_mail = async (req, res) => {
 
     // const carts = await Detail_Order.find({ id_order: req.body.id_order }).populate('id_product')
@@ -147,7 +149,7 @@ module.exports.get_order = async (req, res) => {
 
     const id_user = req.params.id
 
-    const order = await Order.find({ id_user }).populate(['id_user', 'id_note'])
+    const order = await Order.find({ id_user }).populate(['id_user', 'id_note', 'id_payment'])
 
     res.json(order)
 

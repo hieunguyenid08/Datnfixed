@@ -16,6 +16,8 @@ router.patch('/delivery', Order.delivery)
 router.patch('/confirmdelivery', Order.confirmDelivery)
 router.patch('/confirmreturndelivery', Order.confirmReturnOrder)
 router.patch('/returnorder', Order.returnOrder)
+router.patch('/paymentreturn', Order.paymentreturn)
+router.patch('/paymentreturndate', Order.paymentreturndate)
 router.get('/completeOrder', Order.completeOrder)
-
+router.patch('/complete', Order.completeO)
 module.exports = router

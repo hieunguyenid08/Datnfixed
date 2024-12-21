@@ -6,7 +6,8 @@ import './History.css'
 import OrderAPI from '../../API/OrderAPI';
 import Detail_OrderAPI from '../../API/Detail_OrderAPI';
 import NoteAPI from '../../API/NoteAPI';
-
+import MoMo from './MoMo.jsx'
+import LogoMomo from './momo-png/momo_icon_square_pinkbg_RGB.png'
 
 
 import queryString from 'query-string'
@@ -15,14 +16,15 @@ import queryString from 'query-string'
 
 
 
+
 function DetailHistory(props) {
 
     const { id } = useParams()
-
+    const [orderID, setOrderID] = useState('')
     const [order, set_order] = useState({})
 
     const [detail_order, set_detail_order] = useState([])
-
+    const [total_price, set_total_price] = useState(0)
     const [note, set_note] = useState({})
     const baseURL = 'http://localhost:3000/';
 
@@ -32,27 +34,58 @@ function DetailHistory(props) {
 
             const response = await OrderAPI.get_detail(id)
             console.log(response)
+            const [day, month, year] = response.create_time.split('/');
+            const orderDate = new Date(year, month - 1, day); // month is 0-based in JS
+            const currentDate = new Date();
 
+            // Reset time portions to midnight
+            orderDate.setHours(0, 0, 0, 0);
+            currentDate.setHours(0, 0, 0, 0);
+
+            const diffTime = Math.abs(currentDate - orderDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays > 1 && response.status === '1' && !response.pay && response.id_payment.pay_name === "Momo") {
+                await deleteOrder(response._id, response.pay);
+                
+            }
+            if (diffDays > 15 && response.status === '4' ) {
+                await updateOrder(response._id);
+                
+            }
             set_order(response)
 
             const response_detail_order = await Detail_OrderAPI.get_detail_order(id)
-
+            console.log(response_detail_order)
             set_detail_order(response_detail_order)
+
 
         }
 
         fetchData()
+        const intervalId = setInterval(() => {
+            fetchData()
+        }, 2000) // 
+         // Cleanup function để clear interval khi component unmount
+        return () => {
+            clearInterval(intervalId)
+        }
 
     }, [])
+    const handlerMomo = () => {
 
+        setOrderID(Math.random().toString())
+        console.log("Momo Thanh Cong")
+
+    }
     const handleConfirm = async (id) => {
 
-
+        console.log('order._id:', id)
 
         const params = {
             id: id
         }
-
+        console.log('parrams:', params)
         const query = '?' + queryString.stringify(params)
 
         const response = await OrderAPI.delivery(query)
@@ -64,14 +97,60 @@ function DetailHistory(props) {
 
 
     }
+    const [show_error, set_show_error] = useState(false)
+    const deleteOrder = async (id, pay, idpay) => {
+
+        if (pay === true && idpay === "Momo") {
+            set_show_error(true)
+
+            setTimeout(() => {
+                set_show_error(false)
+            }, 2000)
+            return
+        }
+
+        if (!show_error) {
+            const params = {
+                id: id
+            }
+
+            const query = '?' + queryString.stringify(params)
+
+            const response = await OrderAPI.cancel_order(query)
+
+
+           
+
+
+        }
+    }
+    const updateOrder = async (id) => {
+
+        
+        if (!show_error) {
+            const params = {
+                id: id
+            }
+
+            const query = '?' + queryString.stringify(params)
+
+            const response = await OrderAPI.completeO(query)
+
+
+           
+
+
+        }
+    }
+
     const handleReturnConfirm = async (id) => {
 
-
+        console.log('order._id:', id)
 
         const params = {
             id: id
         }
-
+        console.log('parrams:', params)
         const query = '?' + queryString.stringify(params)
 
         const response = await OrderAPI.confirmreturn(query)
@@ -161,10 +240,28 @@ function DetailHistory(props) {
                                                         <td>
                                                             {(() => {
                                                                 switch (order.status) {
-                                                                    case "1": return "Đơn hàng đang duyệt";
+                                                                    case "1": if (order.id_payment.pay_name === "Cash ") {
+                                                                        return <span >Đơn hàng đang duyệt</span>
+                                                                    } if (order.id_payment.pay_name === "Momo" && order.pay === true) {
+                                                                        return <span >Đơn hàng đang duyệt</span>
+                                                                    } else {
+                                                                            return <>
+                                                                                <span >Vui lòng thanh toán đơn hàng</span><br></br >
+                                                                                <div>
+                                                                                    <img src={LogoMomo} width="100" onClick={handlerMomo}
+                                                                                        style={{ cursor: 'pointer' }} />
+                                                                                    <MoMo
+                                                                                        orderID={orderID}
+                                                                                        total={order.total}
+                                                                                        id_order={order._id}
+                                                                                    />
+                                                                                </div>
+                                                                            </>
+                                                                        };
                                                                     case "2": return <>
 
                                                                         <button onClick={() => handleConfirm(order._id)} className="btn btn-success">Đã nhận được hàng</button>
+
                                                                     </>
                                                                     case "3": return <span style={{ color: 'green' }}>Đã nhận hàng thành công</span>;
                                                                     case "4": return <>
@@ -173,8 +270,8 @@ function DetailHistory(props) {
                                                                     </>
                                                                     case "5": return "Đơn bị hủy";
                                                                     case "6": return "Đã nhận yêu cầu trả hàng";
-
-                                                                    default: return <span style={{ color: 'green' }}>Trả hàng thành công</span>;
+                                                                    case "7": return <span style={{ color: 'green' }}>Trả hàng thành công</span>;
+                                                                    default: return <i className="fa fa-check text-success" style={{ fontSize: '25px' }}></i>;
                                                                 }
                                                             })()}
                                                         </td>

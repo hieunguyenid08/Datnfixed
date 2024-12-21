@@ -18,11 +18,34 @@ function MainHistory(props) {
 
         const fetchData = async () => {
 
-            const response = await OrderAPI.get_order(sessionStorage.getItem('id_user'))
-
-            console.log(response)
-
-            set_history(response)
+            try {
+                const response = await OrderAPI.get_order(sessionStorage.getItem('id_user'))
+                console.log(response)
+                // Xử lý các đơn hàng cũ một cách tuần tự
+             
+                for (const order of response) {
+                 
+                    const [day, month, year] = order.create_time.split('/');
+                   const orderDate = new Date(year, month - 1, day); // month is 0-based in JS
+                   const currentDate = new Date();
+              
+                   // Reset time portions to midnight
+                   orderDate.setHours(0, 0, 0, 0);
+                   currentDate.setHours(0, 0, 0, 0);
+                   
+                   const diffTime = Math.abs(currentDate - orderDate);
+                   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                 
+                    if (diffDays > 1 && order.status === '1' && !order.pay&&order.id_payment.pay_name === "Momo") {
+                        await deleteOrder(order._id, order.pay);
+                    }
+                   
+                }
+                 set_history(response)
+                
+            } catch (error) {
+                console.error("Error fetching or processing orders:", error);
+            }
 
         }
 
@@ -99,6 +122,7 @@ function MainHistory(props) {
                                                 <th className="li-product-price">Address</th>
                                                 <th className="li-product-quantity">Total</th>
                                                 <th className="li-product-subtotal">Payment</th>
+                                                <th className="li-product-subtotal">Payment Method</th>
                                                 <th className="li-product-subtotal">Status</th>
                                                 <th className="li-product-subtotal">Cancel</th>
                                             </tr>
@@ -110,15 +134,35 @@ function MainHistory(props) {
                                                         <td className="li-product-price"><span className="amount"><Link to={`/history/${value._id}`}>View</Link></span></td>
                                                         <td className="li-product-price"><span className="amount">{value.id_note.fullname}</span></td>
                                                         <td className="li-product-price"><span className="amount">{value.id_note.phone}</span></td>
+                                                     
                                                         <td className="li-product-price"><span className="amount">{value.address}</span></td>
 
                                                         <td className="li-product-price"><span className="amount">{new Intl.NumberFormat('vi-VN', { style: 'decimal', decimal: 'VND' }).format(value.total) + ' VNĐ'}</span></td>
                                                         <td className="li-product-price"><span className="amount" style={value.pay ? { color: 'green' } : { color: 'red' }}>{value.pay ? 'Paid' : 'Unpaid'}</span></td>
+                                                        <td className="li-product-price"><span className="amount">  {(() => {
+                                                                
+                                                                        if (value.id_payment?.pay_name === "Cash ") {
+                                                                            return <span >Tiền mặt</span>
+                                                                        } if (value.id_payment?.pay_name === "Momo") {
+                                                                            return <span >Momo</span>
+                                                                        } 
+                                                                      
+                                                               
+                                                            })()}</span></td>
                                                         <td className="li-product-price"><span className="amount" >
                                                             {(() => {
                                                                 switch (value.status) {
                                                                     case '1' :
-                                                                        return <span >Đơn hàng đang duyệt</span>
+                                                                        if (value.id_payment?.pay_name === "Cash ") {
+                                                                            return <span >Đơn hàng đang duyệt</span>
+                                                                        } if (value.id_payment?.pay_name === "Momo" && value.pay === true) {
+                                                                            return <span >Đơn hàng đang duyệt</span>
+                                                                        } else {
+                                                                            return <>
+                                                                                <span >Vui lòng thanh toán đơn hàng</span><br></br >
+                                                                               
+                                                                            </>
+                                                                        };
                                                                     case '2':
                                                                         return <span style={{ color: 'green' }} >Đã xác nhận đơn hàng</span>
                                                                     case '3':

@@ -34,7 +34,19 @@ const OrderAPI = {
     confirmreturn: (query) => {
         const url = `/api/admin/Order/returnorder${query}`
         return axiosClient.patch(url)
-    }
+    },
+    paymentreturn: (query) => {
+        const url = `/api/admin/Order/paymentreturn${query}`
+        return axiosClient.patch(url)
+    },
+    paymentreturndate: (query) => {
+        const url = `/api/admin/Order/paymentreturndate${query}`
+        return axiosClient.patch(url)
+    },
+    completeO: (query) => {
+        const url = `/api/admin/Order/complete${query}`
+        return axiosClient.patch(url)
+    },
 
 
 }

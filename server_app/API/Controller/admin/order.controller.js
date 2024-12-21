@@ -45,7 +45,7 @@ module.exports.detailOrder = async (req, res) => {
     let start = (page - 1) * perPage;
     let end = page * perPage;
 
-    const details = await Detail_History.find({ id_order: req.params.id }).populate('id_order').populate('id_product');
+    const details = await Detail_History.find({ id_order: req.params.id }).populate('id_order').populate('id_product').populate('id_payment');
 
     const totalPage = Math.ceil(details.length / perPage);
 
@@ -70,7 +70,7 @@ module.exports.detailOrder = async (req, res) => {
 }
 
 module.exports.details = async (req, res) => {
-    const order = await Order.findOne({ _id: req.params.id }).populate('id_user').populate('id_payment').populate('id_note');
+    const order = await Order.findOne({ _id: req.params.id }).populate('id_user').populate('id_payment').populate('id_note').populate('id_payment');
 
     res.json(order)
 
@@ -114,6 +114,26 @@ module.exports.returnOrder = async (req, res) => {
         if (err) return res.json({ msg: err });
     });
     res.json({ msg: "Thanh Cong" })
+}
+module.exports.completeO = async (req, res) => {
+    await Order.updateOne({ _id: req.query.id }, { status: "8" }, function (err, res) {
+        if (err) return res.json({ msg: err });
+    });
+    res.json({ msg: "Thanh Cong" })
+}
+module.exports.paymentreturn = async (req, res) => {
+    await Order.updateOne({ _id: req.query.id }, { pay: true }, function (err, res) {
+        if (err) return res.json({ msg: err });
+    });
+    res.json({ msg: "rat Thanh Cong" })
+}
+module.exports.paymentreturndate = async (req, res) => {
+    const today = new Date();
+   const formattedDate = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`;
+    await Order.updateOne({ _id: req.query.id }, { create_time: formattedDate}, function (err, res) {
+        if (err) return res.json({ msg: err });
+    });
+    res.json({ msg: "Cập nhật thành công" })
 }
 
 module.exports.completeOrder = async (req, res) => {

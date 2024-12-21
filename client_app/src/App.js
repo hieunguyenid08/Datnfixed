@@ -31,7 +31,7 @@ import { lazy, Suspense } from "react";
 import OrderMomo from "./Order/OrderMomo";
 import Imgsearch from "./Imgsearch/Imgsearch";
 // import DetailEvent from "./About/DetailEvent";
-
+import OrderMomo1 from "./Order/OrderMomo1";
 const Home = lazy(() => {
   return new Promise((resolve) => {
     setTimeout(() => resolve(import("./Home/Home")), 2000);
@@ -154,6 +154,7 @@ function App() {
             <Route path="/success" component={OrderSuccess} />
             <Route path="/fail" component={OrderFail} />
             <Route path="/momo" component={OrderMomo} />
+            <Route path="/momo1" component={OrderMomo1} />
             <Route path="/history" component={History} />
             <Route path="/profile/:id" component={Profile} />
             <Route path="/search" component={Search} />

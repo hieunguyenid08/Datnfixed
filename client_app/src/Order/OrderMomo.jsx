@@ -61,7 +61,7 @@ function OrderMomo(props) {
                     window.location.href = '/'
                     return
                 }
-
+               
                 if (localStorage.getItem("id_coupon")){
                     const responseUpdate = await CouponAPI.updateCoupon(localStorage.getItem("id_coupon"))
                 }
@@ -82,10 +82,11 @@ function OrderMomo(props) {
                     total: total,
                     status: '1',
                     pay: true,
-                    id_payment: '60c05c3adae4bef7b3d55fbf',
+                    id_payment: '655a33788b44b7135885a6d2',
                     id_note: response_Note._id,
                     feeship: price,
                     id_coupon: localStorage.getItem('id_coupon') ? localStorage.getItem('id_coupon') : '',
+                   
                     create_time: `${new Date().getDate()}/${parseInt(new Date().getMonth()) + 1}/${new Date().getFullYear()}`
                 }
 
@@ -149,6 +150,94 @@ function OrderMomo(props) {
                 setNote("You Have Ordered Successfully")
 
             } else {
+                if (!information)
+                    {
+                        window.location.href = '/'
+                        return
+                    }
+    
+                    if (localStorage.getItem("id_coupon")){
+                        const responseUpdate = await CouponAPI.updateCoupon(localStorage.getItem("id_coupon"))
+                    }
+    
+                    // data Note
+                    const data_note = {
+                        fullname: information.fullname,
+                        phone: information.phone,
+                    }
+    
+                    // Xứ lý API Note
+                    const response_Note = await NoteAPI.post_note(data_note)
+    
+                    // data Order
+                    const data_order = {
+                        id_user: sessionStorage.getItem('id_user'),
+                        address: information.address,
+                        total: total,
+                        status: '1',
+                        pay: false,
+                        id_payment: '655a33788b44b7135885a6d2',
+                        id_note: response_Note._id,
+                        feeship: price,
+                        id_coupon: localStorage.getItem('id_coupon') ? localStorage.getItem('id_coupon') : '',
+                       
+                        create_time: `${new Date().getDate()}/${parseInt(new Date().getMonth()) + 1}/${new Date().getFullYear()}`
+                    }
+    
+                    // Xứ lý API Order
+                    const response_order = await OrderAPI.post_order(data_order)
+    
+                    // data carts
+                    const data_carts = JSON.parse(localStorage.getItem('carts'))
+    
+                    // Xử lý API Detail_Order
+                    for (let i = 0; i < data_carts.length; i++) {
+    
+                        const data_detail_order = {
+                            id_order: response_order._id,
+                            id_product: data_carts[i].id_product,
+                            name_product: data_carts[i].name_product,
+                            price_product: data_carts[i].price_product,
+                            count: data_carts[i].count,
+                            size: data_carts[i].size
+                        }
+    
+                        await Detail_OrderAPI.post_detail_order(data_detail_order)
+    
+                    }
+                    const data_email = {
+                        id_order: response_order._id,
+                        total: localStorage.getItem('total_price'),
+                        fullname: information.fullname,
+                        phone: information.phone,
+                        feeship: price,
+                        address: information.address,
+                        email: JSON.parse(localStorage.getItem('information')).email,
+                        subtotal: localStorage.getItem('total_price') - localStorage.getItem('price'),
+                        data_carts: data_carts,
+                    }
+                    localStorage.setItem('data',JSON.stringify(data_email))
+            
+                    // Gửi socket lên server
+                    // socket.emit('send_order', "Có người vừa đặt hàng");
+                    // // Xử lý API Send Mail
+                    // console.log(data_email)
+                    // const send_mail = await OrderAPI.post_email(data_email)
+                    // console.log(send_mail)
+    
+                    localStorage.setItem('carts', JSON.stringify([]))
+                 
+    
+    
+                    // Hàm này dùng để load lại phần header bằng Redux
+                    // const action_count_change = changeCount(count_change)
+                    // dispatch(action_count_change)
+    
+                    setTimeout(() => {
+                        window.location.href = '/history'
+                    }, 2500)
+    
+                  
                 setNote("You Have Ordered Fail")
             }
 
