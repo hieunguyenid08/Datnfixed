@@ -142,13 +142,26 @@ module.exports.scoll = async (req, res) => {
     const start = (page - 1) * count
     const end = page * count   
 
-    const products = await Products.find()
+    const products = await Products.find().populate('id_category')
 
-    const newData = products.filter(value => {
-        return value.name_product.toUpperCase().indexOf(search.toUpperCase()) !== -1
+    // const newData = products.filter(value => {
+    //     return value.name_product.toUpperCase().indexOf(search.toUpperCase()) !== -1
+    // })
+    const new_data = products.filter(value => {
+        // const nameMatch = value?.name_product?.toUpperCase().indexOf(keyword_search.toUpperCase()) !== -1;
+        // const categoryMatch = value?.id_category?.category?.toUpperCase().indexOf(keyword_search.toUpperCase()) !== -1;
+
+        // Get product name and search term, handling null/undefined cases
+        const productName = (value?.name_product || '').toUpperCase();
+        const productCategory = (value?.id_category?.category || '').toUpperCase();
+        const searchTerms = search.toUpperCase().trim().split(/\s+/);
+         // Check if ALL search terms are found in either the product name OR category
+        return searchTerms.every(term => 
+            productName.includes(term) || productCategory.includes(term)
+        );
     })
 
-    const paginationProducts = newData.slice(start, end)
+    const paginationProducts = new_data.slice(start, end)
 
     res.json(paginationProducts)
 

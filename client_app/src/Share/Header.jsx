@@ -133,7 +133,7 @@ function Header(props) {
     useEffect(() => {
         const fetchData = async () => {
             const response = await Product.Get_All_Product()
-            console.log(response)
+           
             set_products(response)
         }
         fetchData()
@@ -170,6 +170,7 @@ function Header(props) {
         e.preventDefault()
         // Đưa vào redux để qua bên trang search lấy query tìm kiếm
         const action = addSearch(keyword_search)
+        console.log(action)
         dispatch(action)
         // set cho nó cái session
         sessionStorage.setItem('search', keyword_search)

@@ -34,11 +34,11 @@ function Search(props) {
                     count: '6',
                     search: sessionStorage.getItem('search')
                 }
-
+                console.log(params)
                 const query = '?' + queryString.stringify(params)
 
                 const response = await Product.get_search_list(query)
-
+                console.log(response)
                 if (response.length < 1) {
                     set_show_load(false)
                 }

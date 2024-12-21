@@ -76,6 +76,7 @@ module.exports.details = async (req, res) => {
 
 }
 
+
 module.exports.confirmOrder = async (req, res) => {
     await Order.updateOne({ _id: req.query.id }, { status: "2" }, function (err, res) {
         if (err) return res.json({ msg: err });
