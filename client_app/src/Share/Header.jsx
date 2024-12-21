@@ -71,7 +71,7 @@ function Header(props) {
                 const response = await User.Get_User(decoded.id)
                 if (mounted) {
                     set_user(response)
-                    if(response){
+                    if (response) {
                         set_active_user(true)
                     }
                 }
@@ -133,6 +133,7 @@ function Header(props) {
     useEffect(() => {
         const fetchData = async () => {
             const response = await Product.Get_All_Product()
+            console.log(response)
             set_products(response)
         }
         fetchData()
@@ -151,7 +152,17 @@ function Header(props) {
     // Không cần gọi API để tạo mới data
     const search_header = useMemo(() => {
         const new_data = products.filter(value => {
-            return value?.name_product?.toUpperCase().indexOf(keyword_search.toUpperCase()) !== -1
+            // const nameMatch = value?.name_product?.toUpperCase().indexOf(keyword_search.toUpperCase()) !== -1;
+            // const categoryMatch = value?.id_category?.category?.toUpperCase().indexOf(keyword_search.toUpperCase()) !== -1;
+
+            // Get product name and search term, handling null/undefined cases
+            const productName = (value?.name_product || '').toUpperCase();
+            const productCategory = (value?.id_category?.category || '').toUpperCase();
+            const searchTerms = keyword_search.toUpperCase().trim().split(/\s+/);
+             // Check if ALL search terms are found in either the product name OR category
+            return searchTerms.every(term => 
+                productName.includes(term) || productCategory.includes(term)
+            );
         })
         return new_data
     }, [keyword_search])
@@ -264,57 +275,57 @@ function Header(props) {
                             <form action="/search" className="hm-searchbox" style={{ width: "50px" }} onSubmit={handler_search}>
                                 <input type="text" placeholder="Tìm kiếm ..." value={keyword_search} onChange={(e) => { set_keyword_search(e.target.value); setSearchVisible(true) }} />
                                 <button className="li-btn" type="submit"><i className="fa fa-search"></i></button>
-                            
+
                                 {isSearchVisible &&
                                     keyword_search && <div className="show_search_product" ref={searchRef}>
                                         {
                                             search_header && search_header.map(value => (
                                                 <>
-                                                <Link to={`/detail/${value._id}`} onClick={() => setSearchVisible(false)} style={{ padding: '.8rem' }}>
-                                                    <div className="hover_box_search d-flex" key={value._id}>
-                                                        <img className="img_list_search" src={value.image} alt="" />
-                                                        <div className="group_title_search" style={{ marginTop: '2.7rem' }}>
-                                                            <h6 className="title_product_search">{value.name_product}</h6>
-                                                            {
-                                                                (() => {
-                                                                    const index = product_category.findIndex(obj => {
-                                                                        return Object.keys(obj.id_product).some(key => obj.id_product[key] === value._id);
-                                                                    });
+                                                    <Link to={`/detail/${value._id}`} onClick={() => setSearchVisible(false)} style={{ padding: '.8rem' }}>
+                                                        <div className="hover_box_search d-flex" key={value._id}>
+                                                            <img className="img_list_search" src={value.image} alt="" />
+                                                            <div className="group_title_search" style={{ marginTop: '2.7rem' }}>
+                                                                <h6 className="title_product_search">{value.name_product}</h6>
+                                                                {
+                                                                    (() => {
+                                                                        const index = product_category.findIndex(obj => {
+                                                                            return Object.keys(obj.id_product).some(key => obj.id_product[key] === value._id);
+                                                                        });
 
-                                                                    if (index !== -1) {
-                                                                        return (
-                                                                            <>
-                                                                                <del className="new-price">{new Intl.NumberFormat('vi-VN', { style: 'decimal', decimal: 'VND' }).format(product_category[index].id_product?.price_product) + ' VNĐ'}</del>
-                                                                                <span className="new-price" style={{ color: 'red' }}>
-                                                                                    {new Intl.NumberFormat('vi-VN', { style: 'decimal', decimal: 'VND' })
-                                                                                        .format(parseInt(product_category[index].id_product?.price_product) - ((parseInt(product_category[index].id_product?.price_product) * parseInt(product_category[index].promotion)) / 100)) + ' VNĐ'}
-                                                                                </span>
-                                                                            </>
-                                                                        );
-                                                                    } else {
-                                                                        return <span className="price_product_search">{new Intl.NumberFormat('vi-VN', { style: 'decimal', decimal: 'VND' }).format(value.price_product) + ' VNĐ'}</span>;
-                                                                    }
-                                                                })()
-                                                            }
+                                                                        if (index !== -1) {
+                                                                            return (
+                                                                                <>
+                                                                                    <del className="new-price">{new Intl.NumberFormat('vi-VN', { style: 'decimal', decimal: 'VND' }).format(product_category[index].id_product?.price_product) + ' VNĐ'}</del>
+                                                                                    <span className="new-price" style={{ color: 'red' }}>
+                                                                                        {new Intl.NumberFormat('vi-VN', { style: 'decimal', decimal: 'VND' })
+                                                                                            .format(parseInt(product_category[index].id_product?.price_product) - ((parseInt(product_category[index].id_product?.price_product) * parseInt(product_category[index].promotion)) / 100)) + ' VNĐ'}
+                                                                                    </span>
+                                                                                </>
+                                                                            );
+                                                                        } else {
+                                                                            return <span className="price_product_search">{new Intl.NumberFormat('vi-VN', { style: 'decimal', decimal: 'VND' }).format(value.price_product) + ' VNĐ'}</span>;
+                                                                        }
+                                                                    })()
+                                                                }
 
+                                                            </div>
                                                         </div>
-                                                    </div>
 
-                                                </Link>
-                                              
+                                                    </Link>
+
                                                 </>
                                             ))
                                         }
                                     </div>
                                 }
                             </form>
-                            <div  className="hm-searchbox1"  onSubmit={handler_search}>
-                             
-                            <Link to={`/imgSearch`}  ><button className="li-btn" type="submit"><i className="fa fa-camera"></i></button>/</Link>
-                            
-                               
+                            <div className="hm-searchbox1" onSubmit={handler_search}>
+
+                                <Link to={`/imgSearch`}  ><button className="li-btn" type="submit"><i className="fa fa-camera"></i></button>/</Link>
+
+
                             </div>
-                           
+
                             <div className="ml-15 header-middle-right d-flex justify-content-between align-items-center" onClick={toggleCartVisibility}>
                                 <ul className="hm-menu d-flex justify-content-between align-items-center">
                                     <li className="hm-wishlist d-flex justify-content-between align-items-center">
@@ -366,7 +377,7 @@ function Header(props) {
                         </div>}
                     </div>
                 </div>
-                
+
                 <div className={header_navbar}>
                     <div className="container">
                         <div className="row">

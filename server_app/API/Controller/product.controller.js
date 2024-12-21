@@ -6,7 +6,7 @@ const Sale = require('../../Models/sale')
 
 module.exports.index = async (req, res) => {
 
-    const products = await Products.find()
+    const products = await Products.find().populate('id_category')
 
     res.json(products)
 }
