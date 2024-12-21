@@ -141,7 +141,7 @@ module.exports.updateDepository = async (req, res) => {
 
         // Duyệt ngược mảng với vòng lặp for
             totalCountToSubtract += detailOrders[detailOrders.length-1].count;
-
+       
         console.log("Tổng số lượng cần trừ: ", totalCountToSubtract);
 
         // Bước 3: Lấy sản phẩm từ collection `Product` dựa trên `id_product`
@@ -163,5 +163,38 @@ module.exports.updateDepository = async (req, res) => {
         res.status(500).json({ msg: "Có lỗi xảy ra khi cập nhật số lượng kho", error: error.message });
     }
 };
+module.exports.updateDepository1 = async (req, res) => {
+    try {
+        
+        const { _id, count } = req.body; // Get both _id and count from request body
+        // Bước 1: Lấy tất cả dữ liệu từ collection `Detail_Order` dựa trên `id_product`
+        const detailOrders = await Detail_Order.find({ id_product: _id });
+
+        if (!detailOrders || detailOrders.length === 0) {
+            return res.status(404).json({ msg: "Không tìm thấy chi tiết đơn hàng cho sản phẩm này" });
+        }
+
+        
+
+        // Bước 3: Lấy sản phẩm từ collection `Product` dựa trên `id_product`
+        const product = await Product.findOne({ _id: _id });
+
+        if (!product) {
+            return res.status(404).json({ msg: "Không tìm thấy sản phẩm" });
+        }
+
+        // Tính toán gi�� trị `depository` mới
+        const newDepository = product.depository + count;
+        console.log("Điện thoại: ",product.name_product,"Số lượng mới: ",newDepository)
+        // Bước 4: Cập nhật lại `depository` của sản phẩm
+        await Product.updateOne({ _id: _id }, { depository: newDepository });
+
+        res.json({ msg: "Đã cập nhật thành công số lượng trong kho" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ msg: "Có lỗi xảy ra khi cập nhật số lượng kho", error: error.message });
+    }
+};
+
 
 

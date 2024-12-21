@@ -7,6 +7,7 @@ import NoteAPI from '../API/NoteAPI';
 import OrderAPI from '../API/OrderAPI';
 import Detail_OrderAPI from '../API/Detail_OrderAPI';
 import io from "socket.io-client";
+import axios from 'axios';
 const socket = io('https://dacn-231-t581.onrender.com', {
     transports: ['websocket'], jsonp: false
 });
@@ -108,7 +109,14 @@ function OrderMomo(props) {
                         size: data_carts[i].size
                     }
 
+                   
+
                     await Detail_OrderAPI.post_detail_order(data_detail_order)
+                    const response = await axios.patch('http://localhost:8000/api/admin/product/updateDepository', {
+                        _id: data_detail_order.id_product,
+                    });
+                    console.log(response)
+
 
                 }
                 const data_email = {
@@ -159,7 +167,7 @@ function OrderMomo(props) {
                     if (localStorage.getItem("id_coupon")){
                         const responseUpdate = await CouponAPI.updateCoupon(localStorage.getItem("id_coupon"))
                     }
-    
+                    
                     // data Note
                     const data_note = {
                         fullname: information.fullname,
@@ -201,8 +209,12 @@ function OrderMomo(props) {
                             count: data_carts[i].count,
                             size: data_carts[i].size
                         }
-    
+                        
                         await Detail_OrderAPI.post_detail_order(data_detail_order)
+                        const response = await axios.patch('http://localhost:8000/api/admin/product/updateDepository', {
+                            _id: data_detail_order.id_product,
+                          
+                        });
     
                     }
                     const data_email = {

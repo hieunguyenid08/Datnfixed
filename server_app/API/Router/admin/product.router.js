@@ -13,6 +13,7 @@ router.patch('/update', Products.update)
 
 router.delete('/delete', Products.delete)
 router.patch('/updateDepository', Products.updateDepository)
+router.patch('/updateDepository1', Products.updateDepository1)
 
 
 module.exports = router

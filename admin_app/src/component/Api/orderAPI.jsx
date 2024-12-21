@@ -36,6 +36,10 @@ const orderAPI = {
     completeReturnOrder: (query) => {
         const url = `/admin/order/confirmreturndelivery${query}`
         return axiosClient.patch(url)
+    },
+    get_detail_order: (id) => {
+        const url = `/DetailOrder/${id}`
+        return axiosClient.get(url)
     }
 }
 

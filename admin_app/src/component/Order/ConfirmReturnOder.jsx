@@ -6,7 +6,7 @@ import queryString from 'query-string'
 import orderAPI from '../Api/orderAPI';
 import Pagination from '../Shared/Pagination'
 import Search from '../Shared/Search'
-
+import axios from 'axios';
 import io from "socket.io-client";
 
 const socket = io('https://dacn-231-t581.onrender.com/', {
@@ -59,18 +59,53 @@ function ConfirmReturnOder(props) {
     }, [])
 
     const handleConfirm = async (value) => {
+       
         const query = '?' + queryString.stringify({ id: value._id })
-
+        const detail = await orderAPI.get_detail_order(value._id)
+        console.log(detail)
+        for (const detail_order of detail) {
+                 await handleSubmittupdatekho(detail_order.id_product, detail_order.count);
+             }
         const response = await orderAPI.completeReturnOrder(query)
 
         if (response.msg === "Thanh Cong") {
+           
+            // for (const detail of detail) {
+            //     await handleSubmittupdatekho(detail.id_product, detail.count);
+            // }
+            
+            
+            
             setFilter({
                 ...filter,
                 change: !filter.change
             })
         }
     }
+    const [productId, setProductId] = useState('');
+    const [message, setMessage] = useState('');
+    const [loading, setLoading] = useState(false);
 
+    const handleSubmittupdatekho = async (id,count) => {
+        //e.preventDefault();
+        setLoading(true);
+        setMessage(''); // Reset message before the request
+
+        try {
+            // Gửi request đến API cập nhật kho
+            const response = await axios.patch('http://localhost:8000/api/admin/product/updateDepository1', {
+                _id: id,
+                count: count 
+            });
+            console.log(response);
+
+            setMessage(response.data.msg); // Set message to show success
+        } catch (error) {
+            setMessage(error.response?.data?.msg || 'Có lỗi xảy ra'); // Show error message if any
+        } finally {
+            setLoading(false);
+        }
+    };
     const handleCancel = async (value) => {
         const query = '?' + queryString.stringify({ id: value._id })
 

@@ -8,7 +8,7 @@ import Detail_OrderAPI from '../../API/Detail_OrderAPI';
 import NoteAPI from '../../API/NoteAPI';
 import MoMo from './MoMo.jsx'
 import LogoMomo from './momo-png/momo_icon_square_pinkbg_RGB.png'
-
+import axios from 'axios';
 
 import queryString from 'query-string'
 
@@ -26,7 +26,7 @@ function DetailHistory(props) {
     const [detail_order, set_detail_order] = useState([])
     const [total_price, set_total_price] = useState(0)
     const [note, set_note] = useState({})
-    const baseURL = 'http://localhost:3000/';
+    const baseURL = 'http://localhost:3000';
 
     useEffect(() => {
 
@@ -34,6 +34,7 @@ function DetailHistory(props) {
 
             const response = await OrderAPI.get_detail(id)
             console.log(response)
+        
             const [day, month, year] = response.create_time.split('/');
             const orderDate = new Date(year, month - 1, day); // month is 0-based in JS
             const currentDate = new Date();
@@ -58,7 +59,7 @@ function DetailHistory(props) {
             const response_detail_order = await Detail_OrderAPI.get_detail_order(id)
             console.log(response_detail_order)
             set_detail_order(response_detail_order)
-
+           
 
         }
 
@@ -97,6 +98,30 @@ function DetailHistory(props) {
 
 
     }
+    const [productId, setProductId] = useState('');
+    const [message, setMessage] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const handleSubmittupdatekho = async (id,count) => {
+        //e.preventDefault();
+        setLoading(true);
+        setMessage(''); // Reset message before the request
+
+        try {
+            // Gửi request đến API cập nhật kho
+            const response = await axios.patch('http://localhost:8000/api/admin/product/updateDepository1', {
+                _id: id,
+                count: count 
+            });
+            console.log(response);
+
+            setMessage(response.data.msg); // Set message to show success
+        } catch (error) {
+            setMessage(error.response?.data?.msg || 'Có lỗi xảy ra'); // Show error message if any
+        } finally {
+            setLoading(false);
+        }
+    };
     const [show_error, set_show_error] = useState(false)
     const deleteOrder = async (id, pay, idpay) => {
 
@@ -168,12 +193,12 @@ function DetailHistory(props) {
             <div className="container" style={{ paddingTop: '3rem' }}>
                 <h1>Order Details</h1>
                 <ul>
-                    <li style={{ fontSize: '1.1rem' }}>ID Invoice: <span>{order._id}</span></li>
-                    <li style={{ fontSize: '1.1rem' }}>Phone: <span>{order.id_note && order.id_note.phone}</span></li>
-                    <li style={{ fontSize: '1.1rem' }}>Fullname: <span>{order.id_note && order.id_note.fullname}</span></li>
-                    <li style={{ fontSize: '1.1rem' }}>Total: <span>{new Intl.NumberFormat('vi-VN', { style: 'decimal', decimal: 'VND' }).format(order.total) + ' VNĐ'}</span></li>
-                    <li style={{ fontSize: '1.1rem' }}>Feeship: <span>{new Intl.NumberFormat('vi-VN', { style: 'decimal', decimal: 'VND' }).format(order.feeship) + ' VNĐ'}</span></li>
-                    <li style={{ fontSize: '1.1rem' }}>Payment: <span>{order.id_payment && order.id_payment.pay_name}</span></li>
+                    <li style={{ fontSize: '1.1rem' }}>ID: <span>{order._id}</span></li>
+                    <li style={{ fontSize: '1.1rem' }}>SĐT: <span>{order.id_note && order.id_note.phone}</span></li>
+                    <li style={{ fontSize: '1.1rem' }}>Họ và tên: <span>{order.id_note && order.id_note.fullname}</span></li>
+                    <li style={{ fontSize: '1.1rem' }}>Tổng: <span>{new Intl.NumberFormat('vi-VN', { style: 'decimal', decimal: 'VND' }).format(order.total) + ' VNĐ'}</span></li>
+                    <li style={{ fontSize: '1.1rem' }}>Phí vận chuyển: <span>{new Intl.NumberFormat('vi-VN', { style: 'decimal', decimal: 'VND' }).format(order.feeship) + ' VNĐ'}</span></li>
+                    <li style={{ fontSize: '1.1rem' }}>Phương thức thanh toán: <span>{order.id_payment && order.id_payment.pay_name}</span></li>
                 </ul>
                 <div className="group_box_status" style={{ marginTop: '3rem' }}>
                     <div className="d-flex justify-content-center">
@@ -182,28 +207,34 @@ function DetailHistory(props) {
                                 <div className="w-100 d-flex justify-content-center">
                                     <div className={parseInt(order.status) > 0 && 'bg_status_delivery_active'}></div>
                                 </div>
-                                <a className="a_status_delivery">Processing</a>
+                                <a className="a_status_delivery">Đang xử lý</a>
                             </div>
 
                             <div className="detail_status_delivery">
                                 <div className="w-100 d-flex justify-content-center">
                                     <div className={parseInt(order.status) > 1 ? 'bg_status_delivery_active' : 'bg_status_delivery'}></div>
                                 </div>
-                                <a className="a_status_delivery">Confirmed</a>
+                                <a className="a_status_delivery">Đã xác nhận</a>
                             </div>
 
                             <div className="detail_status_delivery">
                                 <div className="w-100 d-flex justify-content-center">
                                     <div className={parseInt(order.status) > 2 ? 'bg_status_delivery_active' : 'bg_status_delivery'}></div>
                                 </div>
-                                <a className="a_status_delivery">Shipping</a>
+                                <a className="a_status_delivery">Đang vận chuyển</a>
                             </div>
 
                             <div className="detail_status_delivery">
                                 <div className="w-100 d-flex justify-content-center">
                                     <div className={parseInt(order.status) > 3 ? 'bg_status_delivery_active' : 'bg_status_delivery'}></div>
                                 </div>
-                                <a className="a_status_delivery">Finished</a>
+                                <a className="a_status_delivery">Hoàn Thành</a>
+                            </div>
+                            <div className="detail_status_delivery">
+                                <div className="w-100 d-flex justify-content-center">
+                                    <div className={parseInt(order.status) === 7 ? 'bg_status_delivery_active' : 'bg_status_delivery'}></div>
+                                </div>
+                                <a className="a_status_delivery">Trả hàng</a>
                             </div>
                         </div>
                     </div>
@@ -222,11 +253,11 @@ function DetailHistory(props) {
                                     <table className="table">
                                         <thead>
                                             <tr>
-                                                <th className="li-product-remove">Image</th>
-                                                <th className="li-product-thumbnail">Name Product</th>
-                                                <th className="cart-product-name">Price</th>
-                                                <th className="li-product-price">Count</th>
-                                                <th className="li-product-price">Process</th>
+                                                <th className="li-product-remove">Ảnh</th>
+                                                <th className="li-product-thumbnail">Tên sản phẩm</th>
+                                                <th className="cart-product-name">Giá</th>
+                                                <th className="li-product-price">Số lượng</th>
+                                                <th className="li-product-price">Trạng thái</th>
                                             </tr>
                                         </thead>
                                         <tbody>

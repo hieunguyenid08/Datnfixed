@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import queryString from 'query-string'
 import OrderAPI from '../../API/OrderAPI';
-
+import axios from 'axios';
+import Detail_OrderAPI from '../../API/Detail_OrderAPI';
 MainHistory.propTypes = {
 
 };
@@ -13,7 +14,7 @@ function MainHistory(props) {
     const [history, set_history] = useState([])
 
     const [isLoad, setIsLoad] = useState(true)
-
+    const [detail_order, set_detail_order] = useState([])
     useEffect(() => {
 
         const fetchData = async () => {
@@ -39,9 +40,23 @@ function MainHistory(props) {
                     if (diffDays > 1 && order.status === '1' && !order.pay&&order.id_payment.pay_name === "Momo") {
                         await deleteOrder(order._id, order.pay);
                     }
+                //     if (order.status === '5') {
+                //     const response_detail_order = await Detail_OrderAPI.get_detail_order(order._id)
+                //     if (response_detail_order && response_detail_order.length > 0) {
+                //         for (const detail of [...response_detail_order].reverse()) {
+                //             console.log(detail)
+                //             if (detail.id_product) {
+                //                 await handleSubmittupdatekho(detail.id_product);
+                //             }
+                //         }
+                //     }
+                //     set_detail_order(response_detail_order)
+                // }
                    
                 }
                  set_history(response)
+
+                 
                 
             } catch (error) {
                 console.error("Error fetching or processing orders:", error);
@@ -50,8 +65,39 @@ function MainHistory(props) {
         }
 
         fetchData()
+        const intervalId = setInterval(() => {
+            fetchData()
+        }, 3000) // 
+         // Cleanup function để clear interval khi component unmount
+        return () => {
+            clearInterval(intervalId)
+        }
 
     }, [isLoad])
+    const [productId, setProductId] = useState('');
+    const [message, setMessage] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const handleSubmittupdatekho = async (id,count) => {
+        //e.preventDefault();
+        setLoading(true);
+        setMessage(''); // Reset message before the request
+
+        try {
+            // Gửi request đến API cập nhật kho
+            const response = await axios.patch('http://localhost:8000/api/admin/product/updateDepository1', {
+                _id: id,
+                count: count 
+            });
+            console.log(response);
+
+            setMessage(response.data.msg); // Set message to show success
+        } catch (error) {
+            setMessage(error.response?.data?.msg || 'Có lỗi xảy ra'); // Show error message if any
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const [show_error, set_show_error] = useState(false)
 
@@ -70,12 +116,23 @@ function MainHistory(props) {
             const params = {
                 id: id
             }
-
+            const response_detail_order = await Detail_OrderAPI.get_detail_order(params.id)
+            for (const detail of response_detail_order) {
+                if (detail.id_product) {
+                    await handleSubmittupdatekho(detail.id_product, detail.count);
+                }
+            }
+          
             const query = '?' + queryString.stringify(params)
-
+           
             const response = await OrderAPI.cancel_order(query)
+           
 
             console.log(response)
+            // if (response.msg === "Thanh Cong") {
+            //     handleSubmittupdatekho();
+            //   }
+              
 
             setIsLoad(!isLoad)
         }
@@ -116,15 +173,15 @@ function MainHistory(props) {
                                     <table className="table">
                                         <thead>
                                             <tr>
-                                                <th className="li-product-remove">ID Invoice</th>
-                                                <th className="li-product-thumbnail">Name</th>
-                                                <th className="cart-product-name">Phone</th>
-                                                <th className="li-product-price">Address</th>
-                                                <th className="li-product-quantity">Total</th>
-                                                <th className="li-product-subtotal">Payment</th>
-                                                <th className="li-product-subtotal">Payment Method</th>
-                                                <th className="li-product-subtotal">Status</th>
-                                                <th className="li-product-subtotal">Cancel</th>
+                                                <th className="li-product-remove">ID</th>
+                                                <th className="li-product-thumbnail">Họ và tên</th>
+                                                <th className="cart-product-name">SĐT</th>
+                                                <th className="li-product-price">Địa chỉ</th>
+                                                <th className="li-product-quantity">Tổng</th>
+                                                <th className="li-product-subtotal">Thanh Toán</th>
+                                                <th className="li-product-subtotal">Phương thức thanh toán</th>
+                                                <th className="li-product-subtotal">tình trang đơn hàng</th>
+                                                <th className="li-product-subtotal">Hủy</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -138,7 +195,7 @@ function MainHistory(props) {
                                                         <td className="li-product-price"><span className="amount">{value.address}</span></td>
 
                                                         <td className="li-product-price"><span className="amount">{new Intl.NumberFormat('vi-VN', { style: 'decimal', decimal: 'VND' }).format(value.total) + ' VNĐ'}</span></td>
-                                                        <td className="li-product-price"><span className="amount" style={value.pay ? { color: 'green' } : { color: 'red' }}>{value.pay ? 'Paid' : 'Unpaid'}</span></td>
+                                                        <td className="li-product-price"><span className="amount" style={value.pay ? { color: 'green' } : { color: 'red' }}>{value.pay ? 'Đã thanh toán' : 'Chưa thanh toán'}</span></td>
                                                         <td className="li-product-price"><span className="amount">  {(() => {
                                                                 
                                                                         if (value.id_payment?.pay_name === "Cash ") {
@@ -168,14 +225,15 @@ function MainHistory(props) {
                                                                     case '3':
                                                                         return <span style={{ color: 'green' }}>Đã nhận hàng</span>
                                                                     case '4':
-                                                                        return <i className="fa fa-check text-success" style={{ fontSize: '25px' }}></i>
+                                                                        return <span style={{ color: 'red' }}>Trả hàng</span>
                                                                     case '5':
                                                                         return <span style={{ color: 'red' }}>Đã hủy hàng</span>
                                                                     case '6':
                                                                         return <span style={{ color: 'red' }}>Đang duyệt trả hàng</span>
-
+                                                                    case '7':
+                                                                            return <span style={{ color: 'green' }}>Trả hàng thành công</span>
                                                                     default:
-                                                                        return <span style={{ color: 'green' }}>Trả hàng thành công</span>
+                                                                        return <i className="fa fa-check text-success" style={{ fontSize: '25px' }}></i>
                                                                 }
                                                             })()}
                                                         </span>
@@ -184,9 +242,9 @@ function MainHistory(props) {
                                                             {(() => {
                                                                 switch (value.status) {
                                                                     case '1' || '2':
-                                                                        return <span onClick={() => deleteOrder(value._id, value.pay)} className="text-danger" style={{ cursor: 'pointer' }}>Hủy đơn hàng</span>
+                                                                        return <span onClick={() => deleteOrder(value._id, value.pay)} className="btn btn-outline-danger" style={{ cursor: 'pointer' }}>Hủy đơn hàng</span>
                                                                     case '2':
-                                                                        return <span onClick={() => deleteOrder(value._id, value.pay)} className="text-danger" style={{ cursor: 'pointer' }}>Hủy đơn hàng</span>
+                                                                        return <span onClick={() => deleteOrder(value._id, value.pay)} className="btn btn-outline-danger" style={{ cursor: 'pointer' }}>Hủy đơn hàng</span>
                                                                     case '5':
                                                                         return <i className="fa fa-check text-success" style={{ fontSize: '25px' }}></i>
                                                                   

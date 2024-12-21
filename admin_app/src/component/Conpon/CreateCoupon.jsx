@@ -31,6 +31,7 @@ function CreateCoupon(props) {
         if (!validateDates()) {
             return;
         }
+       
         const response = await CouponAPI.postCoupons(body)
 
         setShowMessage(response.msg)
@@ -41,12 +42,10 @@ function CreateCoupon(props) {
     const validateDates = () => {
         const startDate1 = new Date(startDate);
         const endDate1 = new Date(endDate);
-        //const now = new Date();
+       
+        const now = new Date();
 
-        // if (startDate1 < now) {
-        //     alert('Ngày bắt đầu phải lớn hơn ngày hiện tại');
-        //     return false;
-        // }
+      
 
         if (endDate1 <= startDate1) {
             alert('Ngày kết thúc phải lớn hơn ngày bắt đầu');
@@ -126,17 +125,17 @@ function CreateCoupon(props) {
                                         <input type="text" className="form-control" id="describe" {...register('describe', { required: true })} />
                                         {errors.describe && errors.describe.type === "required" && <p className="form-text text-danger">Mô tả không được để trống</p>}
                                     </div>
-                                    <div className="form-group w-50">
+                                    {/* <div className="form-group w-50">
                                         <label htmlFor="start">Ngày bắt đầu</label>
-                                        <input type="datetime-local" className="form-control" id="start" {...register('start', { required: true })} />
+                                        <input type="datetime-local" className="form-control" id="startDate" {...register('startDate', { required: true })} />
                                         {errors.start && errors.start.type === "required" && <p className="form-text text-danger">Ngày bắt đầu không được để trống</p>}
                                     </div>
                                     <div className="form-group w-50">
                                         <label htmlFor="end">Ngày kết thúc</label>
-                                        <input type="datetime-local" className="form-control" id="end" {...register('end', { required: true })} />
+                                        <input type="datetime-local" className="form-control" id="endDate" {...register('endDate', { required: true })} />
                                         {errors.end && errors.end.type === "required" && <p className="form-text text-danger">Ngày kết thúc không được để trống</p>}
-                                    </div>
-                                    {/* <div className="form-group w-50">
+                                    </div> */}
+                                    <div className="form-group w-50">
                                         <label htmlFor="description">Ngày bắt đầu</label><br />
                                         <DatePicker className="form-control" selected={startDate} onChange={(date) => setStartDate(date)} />
                                     </div>
@@ -144,7 +143,7 @@ function CreateCoupon(props) {
                                         <label htmlFor="description">Ngày kết thúc</label>
                                         <br />
                                         <DatePicker className="form-control" selected={endDate} onChange={(date) => setEndDate(date)} />
-                                    </div> */}
+                                    </div>
                                     <div className="form-group w-50">
                                         <label htmlFor="status">Trạng thái</label>
                                         <select className="form-control" id="status" {...register('status', { required: true })}>
