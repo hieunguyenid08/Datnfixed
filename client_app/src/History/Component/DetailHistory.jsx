@@ -22,7 +22,7 @@ function DetailHistory(props) {
     const { id } = useParams()
     const [orderID, setOrderID] = useState('')
     const [order, set_order] = useState({})
-
+  
     const [detail_order, set_detail_order] = useState([])
     const [total_price, set_total_price] = useState(0)
     const [note, set_note] = useState({})
@@ -34,7 +34,7 @@ function DetailHistory(props) {
 
             const response = await OrderAPI.get_detail(id)
             console.log(response)
-        
+
             const [day, month, year] = response.create_time.split('/');
             const orderDate = new Date(year, month - 1, day); // month is 0-based in JS
             const currentDate = new Date();
@@ -48,18 +48,18 @@ function DetailHistory(props) {
 
             if (diffDays > 1 && response.status === '1' && !response.pay && response.id_payment.pay_name === "Momo") {
                 await deleteOrder(response._id, response.pay);
-                
+
             }
-            if (diffDays > 15 && response.status === '4' ) {
+            if (diffDays > 15 && response.status === '4') {
                 await updateOrder(response._id);
-                
+
             }
             set_order(response)
 
             const response_detail_order = await Detail_OrderAPI.get_detail_order(id)
             console.log(response_detail_order)
             set_detail_order(response_detail_order)
-           
+
 
         }
 
@@ -67,7 +67,7 @@ function DetailHistory(props) {
         const intervalId = setInterval(() => {
             fetchData()
         }, 2000) // 
-         // Cleanup function để clear interval khi component unmount
+        // Cleanup function để clear interval khi component unmount
         return () => {
             clearInterval(intervalId)
         }
@@ -102,7 +102,7 @@ function DetailHistory(props) {
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const handleSubmittupdatekho = async (id,count) => {
+    const handleSubmittupdatekho = async (id, count) => {
         //e.preventDefault();
         setLoading(true);
         setMessage(''); // Reset message before the request
@@ -111,7 +111,7 @@ function DetailHistory(props) {
             // Gửi request đến API cập nhật kho
             const response = await axios.patch('http://localhost:8000/api/admin/product/updateDepository1', {
                 _id: id,
-                count: count 
+                count: count
             });
             console.log(response);
 
@@ -144,14 +144,14 @@ function DetailHistory(props) {
             const response = await OrderAPI.cancel_order(query)
 
 
-           
+
 
 
         }
     }
     const updateOrder = async (id) => {
 
-        
+
         if (!show_error) {
             const params = {
                 id: id
@@ -162,7 +162,7 @@ function DetailHistory(props) {
             const response = await OrderAPI.completeO(query)
 
 
-           
+
 
 
         }
@@ -262,51 +262,57 @@ function DetailHistory(props) {
                                         </thead>
                                         <tbody>
                                             {
-                                                detail_order && detail_order.map(value => (
+                                                detail_order && detail_order.map((value,index) => (
                                                     <tr key={value._id}>
                                                         <td className="li-product-thumbnail"><img src={value.id_product.image} style={{ width: '5rem' }} alt="Li's Product Image" /></td>
                                                         <td className="li-product-name"><a href={`${baseURL}/detail/${value.id_product._id}`}>{value.name_product}</a></td>
                                                         <td className="li-product-price"><span className="amount">{new Intl.NumberFormat('vi-VN', { style: 'decimal', decimal: 'VND' }).format(value.price_product) + ' VNĐ'}</span></td>
                                                         <td className="li-product-price"><span className="amount">{value.count}</span></td>
-                                                        <td>
+                                                        {index === 0 && (
+                                                        <th rowSpan={detail_order.length}> 
                                                             {(() => {
-                                                                switch (order.status) {
-                                                                    case "1": if (order.id_payment.pay_name === "Cash ") {
-                                                                        return <span >Đơn hàng đang duyệt</span>
-                                                                    } if (order.id_payment.pay_name === "Momo" && order.pay === true) {
-                                                                        return <span >Đơn hàng đang duyệt</span>
-                                                                    } else {
-                                                                            return <>
-                                                                                <span >Vui lòng thanh toán đơn hàng</span><br></br >
-                                                                                <div>
-                                                                                    <img src={LogoMomo} width="100" onClick={handlerMomo}
-                                                                                        style={{ cursor: 'pointer' }} />
-                                                                                    <MoMo
-                                                                                        orderID={orderID}
-                                                                                        total={order.total}
-                                                                                        id_order={order._id}
-                                                                                    />
-                                                                                </div>
-                                                                            </>
-                                                                        };
-                                                                    case "2": return <>
 
-                                                                        <button onClick={() => handleConfirm(order._id)} className="btn btn-success">Đã nhận được hàng</button>
+                                                                    
+                                                                    switch (order.status) {
+                                                                        case "1": if (order.id_payment.pay_name === "Cash ") {
+                                                                            return <span >Đơn hàng đang duyệt </span>
+                                                                        } if (order.id_payment.pay_name === "Momo" && order.pay === true) {
+                                                                            return <span >Đơn hàng đang duyệt</span>
+                                                                        } else {
+                                                                                return <>
+                                                                                    <span >Vui lòng thanh toán đơn hàng</span><br></br >
+                                                                                    <div>
+                                                                                        <img src={LogoMomo} width="100" onClick={handlerMomo}
+                                                                                            style={{ cursor: 'pointer' }} />
+                                                                                        <MoMo
+                                                                                            orderID={orderID}
+                                                                                            total={order.total}
+                                                                                            id_order={order._id}
+                                                                                        />
+                                                                                    </div>
+                                                                                </>
+                                                                            };
+                                                                        case "2": return <>
 
-                                                                    </>
-                                                                    case "3": return <span style={{ color: 'green' }}>Đã nhận hàng thành công</span>;
-                                                                    case "4": return <>
+                                                                            <button onClick={() => handleConfirm(order._id)} className="btn btn-success">Đã nhận được hàng</button>
 
-                                                                        <button onClick={() => handleReturnConfirm(order._id)} className="btn btn-success">Trả hàng</button>
-                                                                    </>
-                                                                    case "5": return "Đơn bị hủy";
-                                                                    case "6": return "Đã nhận yêu cầu trả hàng";
-                                                                    case "7": return <span style={{ color: 'green' }}>Trả hàng thành công</span>;
-                                                                    default: return <i className="fa fa-check text-success" style={{ fontSize: '25px' }}></i>;
-                                                                }
+                                                                        </>
+                                                                        case "3": return <span style={{ color: 'green' }}>Đã nhận hàng thành công</span>;
+                                                                        case "4": return <>
+
+                                                                            <button onClick={() => handleReturnConfirm(order._id)} className="btn btn-success">Trả hàng</button>
+                                                                        </>
+                                                                        case "5": return "Đơn bị hủy";
+                                                                        case "6": return "Đã nhận yêu cầu trả hàng";
+                                                                        case "7": return <span style={{ color: 'green' }}>Trả hàng thành công</span>;
+                                                                        default: return <i className="fa fa-check text-success" style={{ fontSize: '25px' }}></i>;
+                                                                    }
+                                                                 
+                                                                
+
                                                             })()}
-                                                        </td>
-
+                                                        </th>
+                                                            )}
                                                     </tr>
                                                 ))
                                             }
