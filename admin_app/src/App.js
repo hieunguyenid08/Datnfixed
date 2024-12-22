@@ -16,7 +16,7 @@ import Menu from './component/Shared/Menu';
 import Product from './component/Product/Product'
 import CreateProduct from './component/Product/CreateProduct'
 import UpdateProduct from './component/Product/UpdateProduct'
-
+import CheckComments from './component/Order/CheckComments';
 import Category from './component/Category/Category'
 import CreateCategory from './component/Category/CreateCategory'
 import DetailCategory from './component/Category/DetailCategory'
@@ -108,7 +108,7 @@ function App() {
             <Route path='/confirmdelivery' component={ConfirmDelivery} />
             <Route path='/completedorder' component={CompletedOrder} />
             <Route path='/cancelorder' component={CancelOrder} />
-
+            <Route path='/checkcomments' component={CheckComments} />
             <Route exact path='/coupon' component={Coupon} />
             <Route path='/coupon/create' component={CreateCoupon} />
             <Route path='/coupon/:id' component={UpdateCoupon} />

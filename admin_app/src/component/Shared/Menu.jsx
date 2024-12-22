@@ -69,6 +69,10 @@ function Menu() {
             item: "ReturnOder",
             permission: "Nhân Viên"
         },
+        {
+            item: "CheckComments",
+            permission: "Nhân Viên"
+        }
         // "Category", ,
         // "Permission",
         // "User",

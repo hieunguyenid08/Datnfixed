@@ -102,6 +102,7 @@ function Detail_Product() {
     const [load_comment, set_load_comment] = useState(true)
     // State list_comment
     const [list_comment, set_list_comment] = useState([])
+    const [showPendingNotification, setShowPendingNotification] = useState(false);
     // Hàm này dùng để gọi API post comment sản phẩm của user
     const handler_Comment = () => {
 
@@ -115,7 +116,8 @@ function Detail_Product() {
             const data = {
                 id_user: sessionStorage.getItem('id_user'),
                 content: comment,
-                star: star
+                star: star,
+                status: "1"
             }
             const post_data = async () => {
                 const response = await CommentAPI.post_comment(data, id)
@@ -123,10 +125,15 @@ function Detail_Product() {
                 set_load_comment(true)
                 set_comment('')
                 set_modal(false)
+                setShowPendingNotification(true);
             }
             post_data()
         }
         setTimeout(() => {
+            setShowPendingNotification(false);
+        }, 2000);
+        setTimeout(() => {
+           
             set_error_comment(false)
         }, 1500)
     }
@@ -135,9 +142,18 @@ function Detail_Product() {
         if (load_comment) {
             const fetchData = async () => {
                 const response = await CommentAPI.get_comment(id)
+                console.log(response)
                 set_list_comment(response)
+                console.log(response)
             }
             fetchData()
+            const intervalId = setInterval(() => {
+                fetchData()
+            }, 3000) // 
+            // Cleanup function để clear interval khi component unmount
+            return () => {
+                clearInterval(intervalId)
+            }
             set_load_comment(false)
         }
     }, [load_comment])
@@ -167,6 +183,16 @@ function Detail_Product() {
                 <div className="sk-cube sk-cube8"></div>
                 <div className="sk-cube sk-cube9"></div>
             </div>}
+            {showPendingNotification &&
+                <div className="modal_success">
+                    <div className="group_model_success pt-3">
+                        <div className="text-center p-2">
+                            <i className="fa fa-check fix_icon_bell" style={{ fontSize: '40px', color: '#fff' }}></i>
+                        </div>
+                        <h4 className="text-center p-3" style={{ color: '#fff' }}>Bình luận của bạn đang được duyệt!</h4>
+                    </div>
+                </div>
+            }
             {
                 show_success &&
                 <div className="modal_success">
@@ -345,7 +371,7 @@ function Detail_Product() {
                                     <div style={{ overflow: 'auto', height: '10rem' }}>
                                         {
                                             list_comment && list_comment.map(value => (
-                                                <div className="comment-author-infos pt-25" key={value._id}>
+                                                value.status !== '1' && (<div className="comment-author-infos pt-25" key={value._id}>
                                                     <span>{value.id_user.fullname} <div style={{ fontWeight: '400' }}>{value.content}</div></span>
                                                     <ul className="rating">
                                                         <li><i className={value.star > 0 ? 'fa fa-star' : 'fa fa-star-o'}></i></li>
@@ -355,7 +381,7 @@ function Detail_Product() {
                                                         <li><i className={value.star > 4 ? 'fa fa-star' : 'fa fa-star-o'}></i></li>
                                                     </ul>
                                                 </div>
-
+                                                )
                                             ))
                                         }
                                     </div>

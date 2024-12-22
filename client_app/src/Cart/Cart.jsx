@@ -25,7 +25,7 @@ function Cart(props) {
     const [errorMessage, setErrorMessage] = useState('');
     // state get from redux
     const count_change = useSelector(state => state.Count.isLoad)
-
+    const [showPendingNotification, setShowPendingNotification] = useState(false);   
     const [total_price, set_total_price] = useState(0)
     const [isModalOpen, setIsModalOpen] = useState(false);
     // Hàm này dùng để hiện thị danh sách sản phẩm đã thêm vào giỏ hàng
@@ -170,11 +170,12 @@ function Cart(props) {
                 }
                 const query = '?' + queryString.stringify(params);
                 const response = await CouponAPI.checkCoupon(query);
-
+               
                 // Handle specific coupon response
                 if (response.msg === 'Mã giảm giá không tồn tại' || response.msg === 'Bạn đã sử dụng mã này rồi' || response.msg === 'Mã giảm giá đã hết hạn') {
                     setErrorCode(true);
                     setErrorMessage(response.msg);
+                   
                 } else {
                     localStorage.setItem('id_coupon', response.coupon._id);
                     localStorage.setItem('coupon', JSON.stringify(response.coupon));
@@ -331,7 +332,8 @@ function Cart(props) {
                                                                     {coupons && coupons
                                                                     .filter(coupon => {
                                                                         // Only show coupons that haven't expired
-                                                                        return new Date(coupon.end) > new Date();
+                                                                      
+                                                                        return  coupon.status === false||new Date(coupon.end) > new Date();
                                                                     })
                                                                     .map((coupon, index) => (
                                                                         <div key={index} className="coupon-item" style={{
