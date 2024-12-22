@@ -8,6 +8,7 @@ import OrderAPI from '../API/OrderAPI';
 import Detail_OrderAPI from '../API/Detail_OrderAPI';
 import queryString from 'query-string';
 import io from "socket.io-client";
+import axios from 'axios';
 const socket = io('https://datnfixed.onrender.com', {
     transports: ['websocket'], jsonp: false
 });
@@ -98,6 +99,10 @@ function OrderMomo(props) {
                             }
                           
                             detail_orders.push(data_detail_order);
+                            const response = await axios.patch('https://datnfixed.onrender.com/api/admin/product/updateDepository', {
+                                _id: data_detail_order.id_product,
+                              
+                            });
 
 
                         }
@@ -187,7 +192,11 @@ function OrderMomo(props) {
                                 }
                               
                                 detail_orders.push(data_detail_order);
-
+                                const response = await axios.patch('https://datnfixed.onrender.com/api/admin/product/updateDepository', {
+                                    _id: data_detail_order.id_product,
+                                  
+                                });
+            
 
                             }
                           
