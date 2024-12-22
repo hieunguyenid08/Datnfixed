@@ -26,7 +26,7 @@ function DetailHistory(props) {
     const [detail_order, set_detail_order] = useState([])
     const [total_price, set_total_price] = useState(0)
     const [note, set_note] = useState({})
-    const baseURL = 'https://datnfixed.vercel.app';
+    const baseURL = 'https://shop.huytehuy.online';
 
     useEffect(() => {
 
