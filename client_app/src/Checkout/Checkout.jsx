@@ -17,7 +17,7 @@ import Modal_Image from '../Modal';
 import Button from 'react-bootstrap/Button';
 import axios from 'axios';
 
-const socket = io('https://dacn-231-t581.onrender.com', {
+const socket = io('https://datnfixed.onrender.com', {
     transports: ['websocket'], jsonp: false
 });
 socket.connect();

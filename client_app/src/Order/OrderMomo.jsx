@@ -8,7 +8,7 @@ import OrderAPI from '../API/OrderAPI';
 import Detail_OrderAPI from '../API/Detail_OrderAPI';
 import io from "socket.io-client";
 import axios from 'axios';
-const socket = io('https://dacn-231-t581.onrender.com', {
+const socket = io('https://datnfixed.onrender.com', {
     transports: ['websocket'], jsonp: false
 });
 socket.connect();
