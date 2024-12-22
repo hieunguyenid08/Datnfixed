@@ -112,7 +112,7 @@ function OrderMomo(props) {
                    
 
                     await Detail_OrderAPI.post_detail_order(data_detail_order)
-                    const response = await axios.patch('http://localhost:8000/api/admin/product/updateDepository', {
+                    const response = await axios.patch('https://datnfixed.onrender.com/api/admin/product/updateDepository', {
                         _id: data_detail_order.id_product,
                     });
                     console.log(response)
@@ -211,7 +211,7 @@ function OrderMomo(props) {
                         }
                         
                         await Detail_OrderAPI.post_detail_order(data_detail_order)
-                        const response = await axios.patch('http://localhost:8000/api/admin/product/updateDepository', {
+                        const response = await axios.patch('https://datnfixed.onrender.com/api/admin/product/updateDepository', {
                             _id: data_detail_order.id_product,
                           
                         });

@@ -93,7 +93,7 @@ function ConfirmReturnOder(props) {
 
         try {
             // Gửi request đến API cập nhật kho
-            const response = await axios.patch('http://localhost:8000/api/admin/product/updateDepository1', {
+            const response = await axios.patch('https://datnfixed.onrender.com/api/admin/product/updateDepository1', {
                 _id: id,
                 count: count 
             });
