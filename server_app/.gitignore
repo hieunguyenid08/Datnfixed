@@ -1,4 +1,8 @@
 node_modules
-e-commerce-model.keras
-label_encoder.pkl
 Data_images
+server_app/python/Imgsearch/e-commerce-model.keras
+server_app/python/Imgsearch/label_encoder.pkl
+server_app/python/Imgsearch/uploads
+
+
+
