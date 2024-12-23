@@ -5,12 +5,11 @@ const CartsLocal = {
     addProduct: (data) => {
         //Lấy dữ liệu từ local
         const data_add_cart = data
-
+        
         //Lấy dữ liệu có sẵn trong state
         const add_cart = JSON.parse(localStorage.getItem('carts'))
 
-        console.log(add_cart.length)
-        console.log(data_add_cart)
+       
 
         if (add_cart.length < 1) {
 

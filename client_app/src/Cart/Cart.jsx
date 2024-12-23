@@ -75,7 +75,7 @@ function Cart(props) {
         }
 
         console.log(data)
-
+        
 
 
         CartsLocal.updateProduct(data)

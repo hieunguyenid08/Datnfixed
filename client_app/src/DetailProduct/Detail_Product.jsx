@@ -14,7 +14,7 @@ function Detail_Product() {
     const [product, set_product] = useState({})
     const [Loading, set_Loading] = useState(false);
     const dispatch = useDispatch()
-
+    let totalCartCount = 0;
     //id_user được lấy từ redux
     // Get count từ redux khi user chưa đăng nhập
     const count_change = useSelector(state => state.Count.isLoad)
@@ -38,9 +38,17 @@ function Detail_Product() {
 
     const [count, set_count] = useState(1)
     const [show_success, set_show_success] = useState(false)
+    const [existingCartCount, setExistingCartCount] = useState(0)
     // Hàm này dùng để thêm vào giỏ hàng
     const handler_addcart = (e) => {
+        const cart1 = JSON.parse(localStorage.getItem('carts'))
+
+
         e.preventDefault()
+        //const cart1 = JSON.parse(localStorage.getItem('carts'))
+
+        let existingCount = 0
+
         const data = {
             id_cart: Math.random().toString(),
             id_product: id,
@@ -49,6 +57,22 @@ function Detail_Product() {
             count: count,
             image: product.image,
             size: 'S',
+        }
+        console.log(cart1)
+        if (cart1) {
+            const existingProduct = cart1.find(item => item.id_product === id)
+            if (existingProduct) {
+                existingCount = existingProduct.count
+
+            }
+        }
+        setExistingCartCount(existingCount)
+        if (existingCount + data.count > product.depository) {
+            setShowWarning(true)
+            setTimeout(() => {
+                setShowWarning(false)
+            }, 7000)
+            return
         }
 
         CartsLocal.addProduct(data)
@@ -133,7 +157,7 @@ function Detail_Product() {
             setShowPendingNotification(false);
         }, 2000);
         setTimeout(() => {
-           
+
             set_error_comment(false)
         }, 1500)
     }
@@ -300,6 +324,15 @@ function Detail_Product() {
                                                 <>
                                                     <div className="quantity">
                                                         <label>Số lượng:</label>
+                                                        {existingCartCount > 0 && (
+                                                            <div style={{
+                                                                color: '#666',
+                                                                fontSize: '14px',
+                                                                marginBottom: '5px'
+                                                            }}>
+                                                                Bạn đã có {existingCartCount} sản phẩm trong giỏ hàng
+                                                            </div>
+                                                        )}
                                                         <div className="cart-plus-minus">
                                                             <input
                                                                 className="cart-plus-minus-box"
